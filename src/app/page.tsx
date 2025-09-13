@@ -1,13 +1,25 @@
 "use client";
 
-import { headers } from "next/headers";
 import type { FormEvent, ChangeEvent } from "react";
 import { useState } from "react";
-import Link from "next/link";
+import CandlestickChart from "@/components/CandlestickChart";
+
+type Bar = {
+  c: number;
+  h: number;
+  l: number;
+  n: number;
+  o: number;
+  t: string;
+  v: number;
+  vw: number;
+};
 
 export default function Home() {
   const [stock, setStock] = useState("");
-  const [intradayData, setIntradayData] = useState(null);
+  const [bars, setBars] = useState<Bar[] | null>(null);
+  const [tradingTimes, setTradingTimes] = useState<null | string[]>(null);
+  const [tradingHigh, setTradingHigh] = useState<null | number[]>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setStock(e.target.value);
@@ -18,7 +30,17 @@ export default function Home() {
     console.log("Submit clicked");
     const res = await fetch(`/api/stocks?symbol=${s}`);
     const data = await res.json();
-    setIntradayData(data["Time Series (5min)"]);
+    console.log(JSON.stringify(data));
+
+    const bars = data["bars"][s];
+
+    setBars(bars);
+
+    const stockTradingTimes = bars.map((e: Bar) => e["t"]);
+    const stockTradingHighs = bars.map((e: Bar) => e["h"]);
+
+    setTradingTimes(stockTradingTimes);
+    setTradingHigh(stockTradingHighs);
   };
 
   return (
@@ -37,11 +59,8 @@ export default function Home() {
           placeholder="Enter stock: "
         />
         <button>Submit</button>
+        {bars && <CandlestickChart bars={bars} />}
       </form>
-      {intradayData && <p>{JSON.stringify(intradayData)}</p>}
-      <Link href="/test">
-        <button className="border-4 border-fuchsia-500">Go to test</button>
-      </Link>
     </>
   );
 }
