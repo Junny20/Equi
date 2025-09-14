@@ -3,6 +3,7 @@
 import type { FormEvent, ChangeEvent } from "react";
 import { useState } from "react";
 import CandlestickChart from "@/components/CandlestickChart";
+import LineChart from "@/components/LineChart";
 
 type Bar = {
   c: number;
@@ -36,11 +37,11 @@ export default function Home() {
 
     setBars(bars);
 
-    const stockTradingTimes = bars.map((e: Bar) => e["t"]);
-    const stockTradingHighs = bars.map((e: Bar) => e["h"]);
+    // const stockTradingTimes = bars.map((e: Bar) => e["t"]);
+    // const stockTradingHighs = bars.map((e: Bar) => e["h"]);
 
-    setTradingTimes(stockTradingTimes);
-    setTradingHigh(stockTradingHighs);
+    // setTradingTimes(stockTradingTimes);
+    // setTradingHigh(stockTradingHighs);
   };
 
   return (
@@ -60,6 +61,7 @@ export default function Home() {
         />
         <button>Submit</button>
         {bars && <CandlestickChart bars={bars} />}
+        {bars && <LineChart bars={bars} />}
       </form>
     </>
   );

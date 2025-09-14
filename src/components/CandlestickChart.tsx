@@ -7,6 +7,7 @@ import {
   TimeScale,
   Tooltip,
 } from "chart.js";
+
 import {
   CandlestickController,
   CandlestickElement,
@@ -36,7 +37,7 @@ type Bar = {
 };
 
 export default function CandlestickChart({ bars }: { bars: Bar[] }) {
-  const data = {
+  const candlestickData = {
     datasets: [
       {
         label: "Stock Prices",
@@ -64,7 +65,6 @@ export default function CandlestickChart({ bars }: { bars: Bar[] }) {
         type: "time",
         time: {
           unit: "minute",
-          tooltipFormat: "HH:mm",
         },
       },
       y: {
@@ -73,5 +73,5 @@ export default function CandlestickChart({ bars }: { bars: Bar[] }) {
     },
   };
 
-  return <Chart type="candlestick" data={data} options={options} />;
+  return <Chart type="candlestick" data={candlestickData} options={options} />;
 }
