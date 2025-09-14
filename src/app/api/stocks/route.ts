@@ -3,7 +3,13 @@ import axios from "axios";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
-  const symbol = url.searchParams.get("symbol") || "AAPL";
+  const symbols = url.searchParams.get("symbols");
+  const timeframe = url.searchParams.get("timeframe");
+  const start = url.searchParams.get("start");
+  const end = url.searchParams.get("end");
+  const feed = "iex";
+
+  console.log(start, end);
 
   const API_KEY = process.env.APCA_API_KEY;
   const API_SECRET = process.env.APCA_SECRET_KEY;
@@ -16,12 +22,14 @@ export async function GET(req: NextRequest) {
         "APCA-API-SECRET-KEY": API_SECRET,
       },
       params: {
-        symbols: symbol,
-        timeframe: "5Min",
-        start: "2024-01-03",
-        end: "2024-01-04",
+        symbols: symbols,
+        timeframe: timeframe,
+        start: start,
+        end: end,
+        feed: "iex",
       },
     });
+
     return NextResponse.json(response.data);
   } catch (err) {
     console.error(err);

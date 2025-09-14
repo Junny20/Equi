@@ -4,7 +4,6 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  TimeScale,
   Tooltip,
 } from "chart.js";
 
@@ -19,7 +18,6 @@ import "chartjs-adapter-date-fns";
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  TimeScale,
   Tooltip,
   CandlestickController,
   CandlestickElement
@@ -36,18 +34,26 @@ type Bar = {
   vw: number;
 };
 
-export default function CandlestickChart({ bars }: { bars: Bar[] }) {
+type Props = {
+  bars: Bar[];
+};
+
+export default function CandlestickChart({ bars }: Props) {
+  const dates = bars.map((bar: Bar) => new Date(bar.t));
+
   const candlestickData = {
+    labels: dates,
     datasets: [
       {
-        label: "Stock Prices",
-        data: bars.map((bar) => ({
-          x: new Date(bar.t),
+        label: "Stock prices",
+        data: bars.map((bar: Bar, i: number) => ({
+          x: dates[i],
           o: bar.o,
           h: bar.h,
           l: bar.l,
           c: bar.c,
         })),
+        barThickness: 4,
       },
     ],
   };
@@ -62,10 +68,7 @@ export default function CandlestickChart({ bars }: { bars: Bar[] }) {
     },
     scales: {
       x: {
-        type: "time",
-        time: {
-          unit: "minute",
-        },
+        type: "category",
       },
       y: {
         beginAtZero: false,
