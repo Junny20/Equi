@@ -10,6 +10,7 @@ import {
 import { Bar } from "react-chartjs-2";
 import type { ChartOptions } from "chart.js";
 import dailyReturns from "@/functions/dailyReturns";
+import volatility from "@/functions/volatility";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Title);
 
@@ -34,22 +35,18 @@ export default function DailyReturnsHistogramChartStdev({ bars }: Props) {
   const dailyReturnsArr = dailyReturns(closingPrices);
 
   const mean =
-    dailyReturnsArr.reduce((e, v) => e + v, 0) / dailyReturnsArr.length;
+    dailyReturnsArr.reduce((sum, e) => sum + e, 0) / dailyReturnsArr.length;
 
-  const variance =
-    dailyReturnsArr.reduce((sum, v) => sum + (v - mean) ** 2, 0) /
-    dailyReturnsArr.length;
-
-  const stdev = Math.sqrt(variance);
+  const vol = volatility(dailyReturnsArr, false);
 
   const buckets = [
-    mean - 3 * stdev,
-    mean - 2 * stdev,
-    mean - 1 * stdev,
+    mean - 3 * vol,
+    mean - 2 * vol,
+    mean - 1 * vol,
     mean,
-    mean + 1 * stdev,
-    mean + 2 * stdev,
-    mean + 3 * stdev,
+    mean + 1 * vol,
+    mean + 2 * vol,
+    mean + 3 * vol,
   ];
 
   const bucketCounts = new Array(buckets.length + 1).fill(0);

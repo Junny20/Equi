@@ -11,7 +11,7 @@ import {
 
 import type { ChartOptions } from "chart.js";
 import { Line } from "react-chartjs-2";
-import movingAverage from "@/functions/movingAverage";
+import rollingAvg from "@/functions/movingAverage";
 
 ChartJS.register(
   CategoryScale,
@@ -49,24 +49,30 @@ export default function LineChart({ bars }: Props) {
         data: closingPrices,
         borderColor: "#4536ebff",
         backgroundColor: "#a09bf5ff",
+        tension: 0.2,
+        fill: false,
       },
       {
-        label: "10 day moving average",
-        data: movingAverage(closingPrices, 10),
+        label: "10 point moving average",
+        data: rollingAvg(closingPrices, 10),
         borderColor: "#36A2EB",
         backgroundColor: "#9BD0F5",
+        tension: 0.2,
+        fill: false,
       },
       {
-        label: "20 day moving average",
-        data: movingAverage(closingPrices, 20),
+        label: "20 point moving average",
+        data: rollingAvg(closingPrices, 20),
         borderColor: "#63ffedff",
         backgroundColor: "#b1fcffff",
       },
       {
-        label: "50 day moving average",
-        data: movingAverage(closingPrices, 50),
+        label: "50 point moving average",
+        data: rollingAvg(closingPrices, 50),
         borderColor: "#52ff5eff",
         backgroundColor: "#b7ffb1ff",
+        tension: 0.2,
+        fill: false,
       },
     ],
   };
@@ -76,6 +82,36 @@ export default function LineChart({ bars }: Props) {
       title: {
         display: true,
         text: "Closing Price of stock over time period",
+      },
+      legend: {
+        position: "top",
+        labels: {
+          boxWidth: 15,
+          padding: 15,
+        },
+      },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          maxTicksLimit: 10,
+          autoSkip: true,
+        },
+      },
+      y: {
+        beginAtZero: false,
+        ticks: {
+          callback: (val) => (val as number).toFixed(4),
+        },
+      },
+    },
+    elements: {
+      point: {
+        radius: 0,
       },
     },
   };

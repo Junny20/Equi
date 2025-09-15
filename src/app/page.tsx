@@ -7,6 +7,7 @@ import LineChart from "@/components/LineChart";
 import DailyReturnsBarChart from "@/components/DailyReturnsBarChart";
 import DailyReturnsHistogramChartStdev from "@/components/DailyReturnsHistogramChartStdev";
 import DailyReturnsHistogramChartEven from "@/components/DailyReturnsHistogramChartEven";
+import VolatilityLineChart from "@/components/VolatilityLineChart";
 
 type Bar = {
   c: number;
@@ -142,15 +143,19 @@ export default function Home() {
         </div>
 
         <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+          {bars && <VolatilityLineChart bars={bars} />}
+        </div>
+
+        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
           {bars && <DailyReturnsBarChart bars={bars} />}
         </div>
 
         <div className="h-auto w-[70vw] mx-auto my-[2vw]">
-          {bars && <DailyReturnsHistogramChartEven bars={bars} />}
+          {bars && <DailyReturnsHistogramChartStdev bars={bars} />}
         </div>
 
         <div className="h-auto w-[70vw] mx-auto my-[2vw]">
-          {bars && <DailyReturnsHistogramChartStdev bars={bars} />}
+          {bars && <DailyReturnsHistogramChartEven bars={bars} />}
         </div>
       </section>
     </>

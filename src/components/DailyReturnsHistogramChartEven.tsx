@@ -46,8 +46,14 @@ export default function DailyReturnsHistogramChartEven({ bars }: Props) {
     counts[binIndex]++;
   }
 
+  const labels = bins.map((b, i) =>
+    i < bins.length - 1
+      ? `${b.toFixed(3)} to ${(b + binWidth).toFixed(3)}`
+      : `${b.toFixed(3)}+`
+  );
+
   const histogramData = {
-    labels: bins,
+    labels: labels,
     datasets: [
       {
         label: "Frequency",
