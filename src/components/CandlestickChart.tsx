@@ -39,7 +39,32 @@ type Props = {
 };
 
 export default function CandlestickChart({ bars }: Props) {
-  const dates = bars.map((bar: Bar) => new Date(bar.t));
+  const labels = bars.map((bar: Bar) => {
+    const d = new Date(bar.t);
+    return `${
+      d.getMonth() + 1
+    }/${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
+  });
+
+  const dates = bars.map((bar: Bar, i: number) => {
+    // const date = new Date(bar.t);
+    // const year = date.getFullYear();
+    // const month = date.getMonth();
+    // const day = date.getDate();
+    // const hour = date.getHours();
+    // const min = date.getMinutes();
+
+    // if (mode === "D") {
+    //   return `${day}, ${hour}:${min}`;
+    // } else if (mode === "M") {
+    //   return `${month + 1}/${day},${hour}:${min}`;
+    // } else if (mode === "Y") {
+    //   return `${year}${month + 1}/${day},${hour}:${min}`;
+    // }
+    const date = new Date(bar.t);
+    // return date.toISOString();
+    return i;
+  });
 
   const candlestickData = {
     labels: dates,

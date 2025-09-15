@@ -21,6 +21,7 @@ export default function Home() {
   const [bars, setBars] = useState<Bar[] | null>(null);
   const [timeframe, setTimeframe] = useState<string>("1M");
   const [timeperiod, setTimeperiod] = useState<string>("1D");
+  const [mode, setMode] = useState<string | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setStock(e.target.value);
@@ -41,13 +42,11 @@ export default function Home() {
     const end = new Date();
     var start = new Date();
 
-    console.log(timeperiod);
-
     if (timeperiod === "YTD") {
       start.setMonth(0);
       start.setDate(1);
     } else if (timeperiod[timeperiod.length - 1] === "D") {
-      start.setDate(end.getDate() - parseInt(timeperiod[0]));
+      start.setDate(end.getDate() - parseInt(timeperiod[0])); //WILL BREAK AND GO INTO THE NEGATIVES
     } else if (timeperiod[timeperiod.length - 1] === "M") {
       start.setMonth(end.getMonth() - parseInt(timeperiod[0]));
     } else if (timeperiod[timeperiod.length - 1] === "Y") {
@@ -56,12 +55,13 @@ export default function Home() {
       start = new Date("2016-01-01");
     }
 
-    console.log(start.toISOString());
+    console.log(timeframe, start, end);
 
     const res = await fetch(
       `/api/stocks?symbols=${s}&timeframe=${timeframe}&start=${start.toISOString()}&end=${end.toISOString()}`
     );
     const data = await res.json();
+    console.log(data);
 
     const bars = data["bars"][s];
 
@@ -130,7 +130,7 @@ export default function Home() {
         </form>
       </section>
       <section>
-        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+        <div className="h-auto w-[100vw] mx-auto my-[2vw]">
           {bars && <CandlestickChart bars={bars} />}
         </div>
 

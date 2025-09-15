@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
   const timeframe = url.searchParams.get("timeframe");
   const start = url.searchParams.get("start");
   const end = url.searchParams.get("end");
+  const limit = 10000;
   const feed = "iex";
 
   console.log(start, end);
@@ -26,6 +27,7 @@ export async function GET(req: NextRequest) {
         timeframe: timeframe,
         start: start,
         end: end,
+        limit: limit,
         feed: "iex",
       },
     });
