@@ -4,6 +4,7 @@ import type { FormEvent, ChangeEvent } from "react";
 import { useState } from "react";
 import CandlestickChart from "@/components/CandlestickChart";
 import LineChart from "@/components/LineChart";
+import DailyReturnsBarChart from "@/components/DailyReturnsBarChart";
 
 type Bar = {
   c: number;
@@ -136,6 +137,10 @@ export default function Home() {
 
         <div className="h-auto w-[70vw] mx-auto my-[2vw]">
           {bars && <LineChart bars={bars} />}
+        </div>
+
+        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+          {bars && <DailyReturnsBarChart bars={bars} />}
         </div>
       </section>
     </>

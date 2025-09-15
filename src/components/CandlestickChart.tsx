@@ -39,13 +39,6 @@ type Props = {
 };
 
 export default function CandlestickChart({ bars }: Props) {
-  const labels = bars.map((bar: Bar) => {
-    const d = new Date(bar.t);
-    return `${
-      d.getMonth() + 1
-    }/${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
-  });
-
   const dates = bars.map((bar: Bar, i: number) => {
     // const date = new Date(bar.t);
     // const year = date.getFullYear();
@@ -86,6 +79,13 @@ export default function CandlestickChart({ bars }: Props) {
   const options: ChartOptions<"candlestick"> = {
     responsive: true,
     plugins: {
+      title: {
+        display: true,
+        text: "OHLC Data of stock over time period",
+      },
+      legend: {
+        display: false,
+      },
       tooltip: {
         mode: "index",
         intersect: false,

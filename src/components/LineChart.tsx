@@ -4,10 +4,12 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  Legend,
   Title,
   Tooltip,
 } from "chart.js";
 
+import type { ChartOptions } from "chart.js";
 import { Line } from "react-chartjs-2";
 import movingAverage from "@/functions/movingAverage";
 
@@ -16,6 +18,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  Legend,
   Title,
   Tooltip
 );
@@ -39,7 +42,7 @@ export default function LineChart({ bars }: Props) {
   const closingPrices = bars.map((e: Bar, i: number) => e.c);
 
   const lineData = {
-    labels: bars.map((e) => e.t.slice(0, 10)),
+    labels: bars.map((e) => new Date(e.t).toLocaleDateString()),
     datasets: [
       {
         label: "Price point",
@@ -68,5 +71,14 @@ export default function LineChart({ bars }: Props) {
     ],
   };
 
-  return <Line data={lineData} />;
+  const options: ChartOptions<"line"> = {
+    plugins: {
+      title: {
+        display: true,
+        text: "Closing Price of stock over time period",
+      },
+    },
+  };
+
+  return <Line data={lineData} options={options} />;
 }
