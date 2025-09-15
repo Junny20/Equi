@@ -1,25 +1,16 @@
 import {
   Chart as ChartJS,
-  LineElement,
   CategoryScale,
   LinearScale,
-  PointElement,
+  BarElement,
   Tooltip,
   Title,
-  plugins,
 } from "chart.js";
 import type { ChartOptions } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import dailyReturns from "@/functions/dailyReturns";
 
-ChartJS.register(
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  Tooltip,
-  Title
-);
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Title);
 
 type Bar = {
   c: number;

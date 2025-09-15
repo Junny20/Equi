@@ -5,6 +5,8 @@ import { useState } from "react";
 import CandlestickChart from "@/components/CandlestickChart";
 import LineChart from "@/components/LineChart";
 import DailyReturnsBarChart from "@/components/DailyReturnsBarChart";
+import DailyReturnsHistogramChartStdev from "@/components/DailyReturnsHistogramChartStdev";
+import DailyReturnsHistogramChartEven from "@/components/DailyReturnsHistogramChartEven";
 
 type Bar = {
   c: number;
@@ -131,7 +133,7 @@ export default function Home() {
         </form>
       </section>
       <section>
-        <div className="h-auto w-[100vw] mx-auto my-[2vw]">
+        <div className="h-auto w-[80vw] mx-auto my-[2vw]">
           {bars && <CandlestickChart bars={bars} />}
         </div>
 
@@ -141,6 +143,14 @@ export default function Home() {
 
         <div className="h-auto w-[70vw] mx-auto my-[2vw]">
           {bars && <DailyReturnsBarChart bars={bars} />}
+        </div>
+
+        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+          {bars && <DailyReturnsHistogramChartEven bars={bars} />}
+        </div>
+
+        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+          {bars && <DailyReturnsHistogramChartStdev bars={bars} />}
         </div>
       </section>
     </>
