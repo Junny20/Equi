@@ -19,6 +19,8 @@ async function lstmmodel(data: number[], windowSize: number): Promise<ret> {
     y.push(scaledData[i]);
   }
 
+  console.log("Length of data:", dataLength);
+
   const x3D: number[][][] = x.map((e) => e.map((v) => [v]));
   const y2D: number[][] = y.map((e) => [e]);
 
@@ -26,6 +28,9 @@ async function lstmmodel(data: number[], windowSize: number): Promise<ret> {
   const yTensor = tf.tensor2d(y2D);
 
   const totalSamples = xTensor.shape[0];
+  const trainingSamples = Math.floor(0.95 * totalSamples);
+  console.log("training samples:", trainingSamples);
+  console.log("total samples:", totalSamples);
 
   const model = tf.sequential();
 
@@ -37,14 +42,14 @@ async function lstmmodel(data: number[], windowSize: number): Promise<ret> {
   });
 
   await model.fit(
-    xTensor.slice([0, 0, 0], [trainingDataLength, windowSize, 1]),
-    yTensor.slice([0, 0], [trainingDataLength, 1]),
+    xTensor.slice([0, 0, 0], [trainingSamples, windowSize, 1]),
+    yTensor.slice([0, 0], [trainingSamples, 1]),
     { epochs: 5, batchSize: 16 }
   );
   const predictionsTensor = model.predict(
     xTensor.slice(
-      [trainingDataLength, 0],
-      [totalSamples - trainingDataLength, windowSize, 1]
+      [trainingSamples, 0, 0],
+      [totalSamples - trainingSamples, windowSize, 1]
     )
   ) as tf.Tensor;
 
@@ -53,12 +58,6 @@ async function lstmmodel(data: number[], windowSize: number): Promise<ret> {
   const unscaledPredictions = predictionsArray.map(
     (p) => p[0] * (max - min) + min
   );
-  //   const actualPrices = data.slice(trainingDataLength);
-  //   console.log(
-  //     "Length of lists:",
-  //     actualPrices.length,
-  //     unscaledPredictions.length
-  //   );
 
   xTensor.dispose();
   yTensor.dispose();

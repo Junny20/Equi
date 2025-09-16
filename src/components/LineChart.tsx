@@ -36,9 +36,15 @@ type Bar = {
 
 type Props = {
   bars: Bar[];
+  showRollingAvg?: boolean;
+  predicted?: number[];
 };
 
-export default function LineChart({ bars }: Props) {
+export default function LineChart({
+  bars,
+  showRollingAvg = true,
+  predicted,
+}: Props) {
   const closingPrices = bars.map((e: Bar, i: number) => e.c);
 
   const lineData = {
@@ -52,28 +58,46 @@ export default function LineChart({ bars }: Props) {
         tension: 0.2,
         fill: false,
       },
-      {
-        label: "10 point moving average",
-        data: rollingAvg(closingPrices, 10),
-        borderColor: "#36A2EB",
-        backgroundColor: "#9BD0F5",
-        tension: 0.2,
-        fill: false,
-      },
-      {
-        label: "20 point moving average",
-        data: rollingAvg(closingPrices, 20),
-        borderColor: "#63ffedff",
-        backgroundColor: "#b1fcffff",
-      },
-      {
-        label: "50 point moving average",
-        data: rollingAvg(closingPrices, 50),
-        borderColor: "#52ff5eff",
-        backgroundColor: "#b7ffb1ff",
-        tension: 0.2,
-        fill: false,
-      },
+
+      ...(showRollingAvg
+        ? [
+            {
+              label: "10 point moving average",
+              data: rollingAvg(closingPrices, 10),
+              borderColor: "#36A2EB",
+              backgroundColor: "#9BD0F5",
+              tension: 0.2,
+              fill: false,
+            },
+            {
+              label: "20 point moving average",
+              data: rollingAvg(closingPrices, 20),
+              borderColor: "#63ffedff",
+              backgroundColor: "#b1fcffff",
+            },
+            {
+              label: "50 point moving average",
+              data: rollingAvg(closingPrices, 50),
+              borderColor: "#52ff5eff",
+              backgroundColor: "#b7ffb1ff",
+              tension: 0.2,
+              fill: false,
+            },
+          ]
+        : []),
+
+      ...(predicted
+        ? [
+            {
+              label: "Predicted stock prices",
+              data: predicted,
+              borderColor: "#ff5252ff",
+              backgroundColor: "#ffb1b1ff",
+              tension: 0.2,
+              fill: false,
+            },
+          ]
+        : []),
     ],
   };
 

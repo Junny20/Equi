@@ -61,14 +61,18 @@ export default function Home() {
 
     console.log(timeframe, start, end);
 
-    const res = await fetch(
-      `/api/stocks?symbols=${s}&timeframe=${timeframe}&start=${start.toISOString()}&end=${end.toISOString()}`
-    );
-    const data = await res.json();
+    try {
+      const res = await fetch(
+        `/api/stocks?symbols=${s}&timeframe=${timeframe}&start=${start.toISOString()}&end=${end.toISOString()}`
+      );
+      const data = await res.json();
 
-    const bars = data["bars"][s];
+      const bars = data["bars"][s];
 
-    setBars(bars);
+      setBars(bars);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
