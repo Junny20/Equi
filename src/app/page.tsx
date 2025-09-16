@@ -2,6 +2,7 @@
 
 import type { FormEvent, ChangeEvent } from "react";
 import { useState } from "react";
+import Link from "next/link";
 import CandlestickChart from "@/components/CandlestickChart";
 import LineChart from "@/components/LineChart";
 import DailyReturnsBarChart from "@/components/DailyReturnsBarChart";
@@ -25,7 +26,6 @@ export default function Home() {
   const [bars, setBars] = useState<Bar[] | null>(null);
   const [timeframe, setTimeframe] = useState<string>("1M");
   const [timeperiod, setTimeperiod] = useState<string>("1D");
-  const [mode, setMode] = useState<string | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setStock(e.target.value);
@@ -65,7 +65,6 @@ export default function Home() {
       `/api/stocks?symbols=${s}&timeframe=${timeframe}&start=${start.toISOString()}&end=${end.toISOString()}`
     );
     const data = await res.json();
-    console.log(data);
 
     const bars = data["bars"][s];
 
@@ -158,6 +157,8 @@ export default function Home() {
           {bars && <DailyReturnsHistogramChartEven bars={bars} />}
         </div>
       </section>
+
+      <Link href={"/lstm"}>Go to model</Link>
     </>
   );
 }

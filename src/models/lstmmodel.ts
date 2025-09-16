@@ -1,6 +1,8 @@
 import * as tf from "@tensorflow/tfjs";
 
-async function lstmmodel(data: number[], windowSize: number) {
+type ret = [unscaledPredictions: number[], trainingDataLength: number];
+
+async function lstmmodel(data: number[], windowSize: number): Promise<ret> {
   const dataLength = data.length;
   const trainingDataLength = Math.floor(0.95 * dataLength);
 
@@ -23,6 +25,8 @@ async function lstmmodel(data: number[], windowSize: number) {
   const xTensor = tf.tensor3d(x3D);
   const yTensor = tf.tensor2d(y2D);
 
+  const totalSamples = xTensor.shape[0];
+
   const model = tf.sequential();
 
   model.add(tf.layers.lstm({ units: 50, inputShape: [windowSize, 1] }));
@@ -30,8 +34,8 @@ async function lstmmodel(data: number[], windowSize: number) {
   model.compile({
     loss: "meanSquaredError",
     optimizer: "adam",
-    metrics: ["accuracy"],
   });
+
   await model.fit(
     xTensor.slice([0, 0, 0], [trainingDataLength, windowSize, 1]),
     yTensor.slice([0, 0], [trainingDataLength, 1]),
@@ -40,7 +44,7 @@ async function lstmmodel(data: number[], windowSize: number) {
   const predictionsTensor = model.predict(
     xTensor.slice(
       [trainingDataLength, 0],
-      [dataLength - trainingDataLength, windowSize, 1]
+      [totalSamples - trainingDataLength, windowSize, 1]
     )
   ) as tf.Tensor;
 
@@ -49,13 +53,18 @@ async function lstmmodel(data: number[], windowSize: number) {
   const unscaledPredictions = predictionsArray.map(
     (p) => p[0] * (max - min) + min
   );
-  const actualPrices = data.slice(trainingDataLength);
-  console.log(
-    "Length of lists:",
-    actualPrices.length,
-    unscaledPredictions.length
-  );
-  return unscaledPredictions;
+  //   const actualPrices = data.slice(trainingDataLength);
+  //   console.log(
+  //     "Length of lists:",
+  //     actualPrices.length,
+  //     unscaledPredictions.length
+  //   );
+
+  xTensor.dispose();
+  yTensor.dispose();
+  predictionsTensor.dispose();
+
+  return [unscaledPredictions, trainingDataLength];
 }
 
 export default lstmmodel;
