@@ -24,7 +24,7 @@ type Bar = {
 export default function Home() {
   const [stock, setStock] = useState("");
   const [bars, setBars] = useState<Bar[] | null>(null);
-  const [timeframe, setTimeframe] = useState<string>("1M");
+  const [timeframe, setTimeframe] = useState<string>("5M");
   const [timeperiod, setTimeperiod] = useState<string>("1D");
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -65,13 +65,18 @@ export default function Home() {
       const res = await fetch(
         `/api/stocks?symbols=${s}&timeframe=${timeframe}&start=${start.toISOString()}&end=${end.toISOString()}`
       );
+
       const data = await res.json();
+      console.log(data);
 
-      const bars = data["bars"][s];
-
-      setBars(bars);
+      try {
+        const bars = data["bars"][s];
+        setBars(bars);
+      } catch (err) {
+        console.error("Could not build bars from data: ", err);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Could not fetch response from initial API call:", err);
     }
   };
 
@@ -104,7 +109,7 @@ export default function Home() {
               setTimeframe(e.target.value);
             }}
           >
-            <option value="1Min">1 Minute</option>
+            {/* <option value="1Min">1 Minute</option> */}
             <option value="5Min">5 Minutes</option>
             <option value="15Min">15 Minutes</option>
             <option value="30Min">30 Minutes</option>
