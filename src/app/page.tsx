@@ -2,13 +2,13 @@
 
 import type { FormEvent, ChangeEvent } from "react";
 import { useState } from "react";
-import Link from "next/link";
-import CandlestickChart from "@/components/CandlestickChart";
-import LineChart from "@/components/LineChart";
-import DailyReturnsBarChart from "@/components/DailyReturnsBarChart";
-import DailyReturnsHistogramChartStdev from "@/components/DailyReturnsHistogramChartStdev";
-import DailyReturnsHistogramChartEven from "@/components/DailyReturnsHistogramChartEven";
-import VolatilityLineChart from "@/components/VolatilityLineChart";
+import NavBar from "@/components/NavBar";
+import CandlestickChart from "@/graphs/CandlestickChart";
+import LineChart from "@/graphs/LineChart";
+import DailyReturnsBarChart from "@/graphs/DailyReturnsBarChart";
+import DailyReturnsHistogramChartStdev from "@/graphs/DailyReturnsHistogramChartStdev";
+import DailyReturnsHistogramChartEven from "@/graphs/DailyReturnsHistogramChartEven";
+import VolatilityLineChart from "@/graphs/VolatilityLineChart";
 
 type Bar = {
   c: number;
@@ -82,6 +82,9 @@ export default function Home() {
 
   return (
     <>
+      <section>
+        <NavBar />
+      </section>
       <section>
         <div className="text-center text-5xl">Equi</div>
       </section>
@@ -166,8 +169,6 @@ export default function Home() {
           {bars && <DailyReturnsHistogramChartEven bars={bars} />}
         </div>
       </section>
-
-      <Link href={"/lstm"}>Go to model</Link>
     </>
   );
 }

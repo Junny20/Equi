@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
+  const url = req.nextUrl;
   const symbols = url.searchParams.get("symbols");
   const timeframe = url.searchParams.get("timeframe");
   const start = url.searchParams.get("start");
@@ -19,8 +19,8 @@ export async function GET(req: NextRequest) {
   try {
     const response = await axios.get(HISTORICAL_BARS_URL, {
       headers: {
-        "APCA-API-KEY-ID": API_KEY,
-        "APCA-API-SECRET-KEY": API_SECRET,
+        "APCA-API-KEY-ID": API_KEY!,
+        "APCA-API-SECRET-KEY": API_SECRET!,
       },
       params: {
         symbols: symbols,
@@ -28,13 +28,13 @@ export async function GET(req: NextRequest) {
         start: start,
         end: end,
         limit: limit,
-        feed: "iex",
+        feed: feed,
       },
     });
 
     return NextResponse.json(response.data);
   } catch (err) {
-    console.error(err);
+    console.error(`Failed to get stock data: ${err}`);
     return NextResponse.json({ error: "Failed to get stock data" });
   }
 }

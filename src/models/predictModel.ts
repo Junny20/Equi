@@ -1,12 +1,10 @@
 import * as tf from "@tensorflow/tfjs";
 
-type ret = [unscaledPredictions: number[], trainingDataLength: number];
-
-async function lstmmodel(
+async function predictModel(
   data: number[],
   windowSize: number,
   futureDataPoints?: number
-): Promise<ret> {
+): Promise<number[]> {
   const dataLength = data.length;
   const trainingDataLength = Math.floor(0.95 * dataLength);
 
@@ -97,7 +95,7 @@ async function lstmmodel(
   yTensor.dispose();
   //   predictionsTensor.dispose();
 
-  return [unscaledPredictions, trainingDataLength];
+  return unscaledPredictions;
 }
 
-export default lstmmodel;
+export default predictModel;

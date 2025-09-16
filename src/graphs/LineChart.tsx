@@ -97,6 +97,15 @@ export default function LineChart({
   const lineData = {
     labels: dates.map((e) => e.toLocaleDateString()),
     datasets: [
+      {
+        label: "Price point",
+        data: closingPrices,
+        borderColor: "#4536ebff",
+        backgroundColor: "#a09bf5ff",
+        tension: 0.2,
+        fill: false,
+      },
+
       ...(predicted
         ? [
             {
@@ -109,14 +118,6 @@ export default function LineChart({
             },
           ]
         : []),
-      {
-        label: "Price point",
-        data: closingPrices,
-        borderColor: "#4536ebff",
-        backgroundColor: "#a09bf5ff",
-        tension: 0.2,
-        fill: false,
-      },
 
       ...(showRollingAvg
         ? [

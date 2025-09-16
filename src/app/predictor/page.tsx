@@ -1,12 +1,12 @@
 "use client";
 
-import lstmmodel from "@/models/lstmmodel";
-import Link from "next/link";
+import predictModel from "@/models/predictModel";
 import { FormEvent } from "react";
 import { useState } from "react";
-import LineChart from "@/components/LineChart";
+import LineChart from "@/graphs/LineChart";
 
 import type { ChangeEvent } from "react";
+import NavBar from "@/components/NavBar";
 
 type Bar = {
   c: number;
@@ -68,7 +68,7 @@ export default function Model() {
 
       const closingPrices = bars.map((e: Bar) => e.c);
 
-      const [predictions, len] = await lstmmodel(closingPrices, 10, 50);
+      const predictions = await predictModel(closingPrices, 10, 50);
 
       if (predictions) {
         const lineData = predictions;
@@ -82,6 +82,9 @@ export default function Model() {
 
   return (
     <>
+      <section>
+        <NavBar />
+      </section>
       <section>
         <form
           className="border-4 border-pink-500"
@@ -141,23 +144,23 @@ export default function Model() {
         </form>
       </section>
 
-      <div className="h-auto w-[70vw] mx-auto my-[2vw]">
-        {bars && <LineChart bars={bars} />}
-      </div>
+      <section>
+        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+          {bars && <LineChart bars={bars} />}
+        </div>
 
-      <div className="h-auto w-[70vw] mx-auto my-[2vw]">
-        {bars && preds && (
-          <LineChart
-            bars={bars}
-            showRollingAvg={false}
-            predicted={preds}
-            timeframe={timeframe}
-            futureDataPoints={50}
-          />
-        )}
-      </div>
-
-      <Link href={"/"}>Go Back</Link>
+        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+          {bars && preds && (
+            <LineChart
+              bars={bars}
+              showRollingAvg={false}
+              predicted={preds}
+              timeframe={timeframe}
+              futureDataPoints={50}
+            />
+          )}
+        </div>
+      </section>
     </>
   );
 }
