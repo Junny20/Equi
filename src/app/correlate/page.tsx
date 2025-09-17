@@ -6,6 +6,7 @@ import NavBar from "@/components/NavBar";
 import SearchBar from "@/components/SearchBar";
 import LineChart from "@/graphs/LineChart";
 import MultipleStockLineChart from "@/graphs/MultipleStockLineChart";
+import ScatterPlot from "@/graphs/ScatterPlot";
 
 type Bar = {
   c: number;
@@ -39,7 +40,6 @@ export default function Correlate() {
 
     const stocks: string = s.replace(/\s/g, "");
     const stockArr: string[] = stocks.split(",");
-    setStocksArray(stockArr);
 
     let stockBars: Bar[][] = [];
 
@@ -68,12 +68,15 @@ export default function Correlate() {
       const data = await res.json();
       console.log(data);
 
+      console.log(stockArr);
+
       for (const stock of stockArr) {
         const bars = data.bars[stock];
         stockBars.push(bars);
       }
 
       setBars(stockBars);
+      setStocksArray(stockArr);
     } catch (err) {
       console.error(`Failed to fetch data of stocks ${stocks}: ${err}`);
     }
@@ -100,6 +103,23 @@ export default function Correlate() {
         />
       </section>
       <section>
+        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+          {bars?.length == 2 && stocksArray?.length == 2 && (
+            <ScatterPlot
+              bars={bars as [Bar[], Bar[]]}
+              stocksArr={stocksArray}
+            />
+          )}
+        </div>
+        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+          {bars && stocksArray && (
+            <MultipleStockLineChart
+              bars={bars}
+              stocksArr={stocksArray}
+              returns={true}
+            />
+          )}
+        </div>
         <div className="h-auto w-[70vw] mx-auto my-[2vw]">
           {bars && stocksArray && (
             <MultipleStockLineChart bars={bars} stocksArr={stocksArray} />

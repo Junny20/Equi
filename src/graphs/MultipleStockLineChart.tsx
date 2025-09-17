@@ -11,6 +11,7 @@ import {
 
 import { Line } from "react-chartjs-2";
 import type { ChartOptions } from "chart.js";
+import dailyReturns from "@/functions/dailyReturns";
 
 ChartJS.register(
   LineElement,
@@ -36,14 +37,27 @@ type Bar = {
 type Props = {
   bars: Bar[][];
   stocksArr: string[];
+  returns?: boolean;
 };
 
-export default function MultipleStockLineChart({ bars, stocksArr }: Props) {
+export default function MultipleStockLineChart({
+  bars,
+  stocksArr,
+  returns,
+}: Props) {
   const dates = bars[0].map((e: Bar) => new Date(e.t));
   let datasets = [];
 
   for (var i = 0; i < stocksArr.length; i++) {
-    const dataset = { label: stocksArr[i], data: bars[i].map((e: Bar) => e.c) };
+    let dataset;
+    const closingPrices = bars[i].map((e: Bar) => e.c);
+    if (returns) {
+      const dailyReturnsArr = dailyReturns(closingPrices);
+      dataset = { label: stocksArr[i], data: dailyReturnsArr };
+    } else {
+      dataset = { label: stocksArr[i], data: closingPrices };
+    }
+
     datasets.push(dataset);
   }
 
@@ -55,7 +69,9 @@ export default function MultipleStockLineChart({ bars, stocksArr }: Props) {
     plugins: {
       title: {
         display: true,
-        text: "Closing Price of stock over time period",
+        text: returns
+          ? "Daily returns of stock over time period"
+          : "Closing prices of stock over time period",
       },
       legend: {
         position: "top",
