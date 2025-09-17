@@ -176,7 +176,7 @@ export default function LineChart({
       y: {
         beginAtZero: false,
         ticks: {
-          callback: (val) => (val as number).toFixed(4),
+          callback: (e) => (e as number).toFixed(4),
         },
       },
     },

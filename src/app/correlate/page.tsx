@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import NavBar from "@/components/NavBar";
 import SearchBar from "@/components/SearchBar";
+import LineChart from "@/graphs/LineChart";
+import MultipleStockLineChart from "@/graphs/MultipleStockLineChart";
 
 type Bar = {
   c: number;
@@ -20,7 +22,8 @@ export default function Correlate() {
   const [stock, setStock] = useState("");
   const [timeframe, setTimeframe] = useState<string>("5Min");
   const [timeperiod, setTimeperiod] = useState<string>("1D");
-  const [bars, setBars] = useState<Bar[] | null>(null);
+  const [stocksArray, setStocksArray] = useState<string[] | null>(null);
+  const [bars, setBars] = useState<Bar[][] | null>(null);
 
   const handleSubmit = async (
     e: FormEvent<HTMLFormElement>,
@@ -33,6 +36,12 @@ export default function Correlate() {
     if (!s) {
       return;
     }
+
+    const stocks: string = s.replace(/\s/g, "");
+    const stockArr: string[] = stocks.split(",");
+    setStocksArray(stockArr);
+
+    let stockBars: Bar[][] = [];
 
     const end = new Date();
     var start = new Date();
@@ -50,7 +59,24 @@ export default function Correlate() {
       start = new Date("2016-01-01");
     }
 
-    console.log(timeframe, start, end);
+    console.log(stocks, timeframe, start, end);
+
+    try {
+      const res = await fetch(
+        `api/stocks?symbols=${stocks}&timeframe=${timeframe}&start=${start.toISOString()}&end=${end.toISOString()}`
+      );
+      const data = await res.json();
+      console.log(data);
+
+      for (const stock of stockArr) {
+        const bars = data.bars[stock];
+        stockBars.push(bars);
+      }
+
+      setBars(stockBars);
+    } catch (err) {
+      console.error(`Failed to fetch data of stocks ${stocks}: ${err}`);
+    }
   };
 
   return (
@@ -59,7 +85,11 @@ export default function Correlate() {
         <NavBar />
       </section>
       <section>
+        <div>Finds the correlation between two stocks or more</div>
+      </section>
+      <section>
         <SearchBar
+          placeholder="Enter stocks separated by a comma: e.g AAPL,TSLA"
           handleSubmit={handleSubmit}
           stock={stock}
           setStock={setStock}
@@ -69,7 +99,13 @@ export default function Correlate() {
           setTimeperiod={setTimeperiod}
         />
       </section>
-      <div>Finds the correlation between two stocks</div>
+      <section>
+        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+          {bars && stocksArray && (
+            <MultipleStockLineChart bars={bars} stocksArr={stocksArray} />
+          )}
+        </div>
+      </section>
     </>
   );
 }

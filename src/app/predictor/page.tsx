@@ -87,6 +87,7 @@ export default function Model() {
       </section>
       <section>
         <SearchBar
+          placeholder="Enter stock: "
           handleSubmit={handleSubmit}
           stock={stock}
           setStock={setStock}

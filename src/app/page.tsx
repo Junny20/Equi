@@ -84,6 +84,7 @@ export default function Home() {
       </section>
       <section>
         <SearchBar
+          placeholder="Enter stock: "
           handleSubmit={handleSubmit}
           stock={stock}
           setStock={setStock}

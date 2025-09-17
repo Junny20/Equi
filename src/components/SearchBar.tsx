@@ -1,6 +1,7 @@
 import type { ChangeEvent, FormEvent } from "react";
 
 type Props = {
+  placeholder: string;
   stock: string;
   setStock: (s: string) => void;
   timeframe: string;
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export default function SearchBar({
+  placeholder,
   stock,
   setStock,
   timeframe,
@@ -37,10 +39,11 @@ export default function SearchBar({
       }}
     >
       <input
+        className="w-[300px]"
         type="text"
         value={stock}
         onChange={handleChange}
-        placeholder="Enter stock: "
+        placeholder={placeholder}
       />
 
       <label htmlFor="timeframe">Time interval: </label>

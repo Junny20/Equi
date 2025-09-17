@@ -1,0 +1,93 @@
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  PointElement,
+  Tooltip,
+  Title,
+  Legend,
+  LinearScale,
+} from "chart.js";
+
+import { Line } from "react-chartjs-2";
+import type { ChartOptions } from "chart.js";
+
+ChartJS.register(
+  LineElement,
+  CategoryScale,
+  PointElement,
+  Tooltip,
+  Title,
+  Legend,
+  LinearScale
+);
+
+type Bar = {
+  c: number;
+  h: number;
+  l: number;
+  n: number;
+  o: number;
+  t: string;
+  v: number;
+  vw: number;
+};
+
+type Props = {
+  bars: Bar[][];
+  stocksArr: string[];
+};
+
+export default function MultipleStockLineChart({ bars, stocksArr }: Props) {
+  const dates = bars[0].map((e: Bar) => new Date(e.t));
+  let datasets = [];
+
+  for (var i = 0; i < stocksArr.length; i++) {
+    const dataset = { label: stocksArr[i], data: bars[i].map((e: Bar) => e.c) };
+    datasets.push(dataset);
+  }
+
+  const data = {
+    labels: dates.map((e: Date) => e.toLocaleDateString()),
+    datasets: datasets,
+  };
+  const options: ChartOptions<"line"> = {
+    plugins: {
+      title: {
+        display: true,
+        text: "Closing Price of stock over time period",
+      },
+      legend: {
+        position: "top",
+        labels: {
+          boxWidth: 15,
+          padding: 15,
+        },
+      },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          maxTicksLimit: 10,
+          autoSkip: true,
+        },
+      },
+      y: {
+        beginAtZero: false,
+        ticks: {
+          callback: (e) => (e as number).toFixed(4),
+        },
+      },
+    },
+    elements: {
+      point: {
+        radius: 0,
+      },
+    },
+  };
+  return <Line data={data} options={options} />;
+}
