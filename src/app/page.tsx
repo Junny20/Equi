@@ -83,9 +83,6 @@ export default function Home() {
         <NavBar />
       </section>
       <section>
-        <div className="text-center text-5xl">Equi</div>
-      </section>
-      <section>
         <SearchBar
           handleSubmit={handleSubmit}
           stock={stock}
