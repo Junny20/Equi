@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import NavBar from "@/components/NavBar";
 import SearchBar from "@/components/SearchBar";
-import LineChart from "@/graphs/LineChart";
 import MultipleStockLineChart from "@/graphs/MultipleStockLineChart";
 import ScatterPlot from "@/graphs/ScatterPlot";
+import Heatmap from "@/graphs/HeatmapChart";
 
 type Bar = {
   c: number;
@@ -109,6 +109,11 @@ export default function Correlate() {
               bars={bars as [Bar[], Bar[]]}
               stocksArr={stocksArray}
             />
+          )}
+        </div>
+        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+          {bars && stocksArray && (
+            <Heatmap bars={bars} stocksArr={stocksArray} />
           )}
         </div>
         <div className="h-auto w-[70vw] mx-auto my-[2vw]">

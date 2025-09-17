@@ -13,7 +13,6 @@ import {
 } from "chartjs-chart-financial";
 import type { ChartOptions } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import "chartjs-adapter-date-fns";
 
 ChartJS.register(
   CategoryScale,
