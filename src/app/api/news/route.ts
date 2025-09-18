@@ -31,6 +31,9 @@ export async function GET(req: NextRequest) {
   if (req) {
     const url = req.nextUrl;
     const symbols = url.searchParams.get("symbols");
+    const start = url.searchParams.get("start");
+    const end = url.searchParams.get("end");
+
     try {
       const response = await axios.get(NEWS_URL, {
         headers: {
@@ -39,7 +42,10 @@ export async function GET(req: NextRequest) {
         },
         params: {
           symbols: symbols,
+          start: start,
+          end: end,
           exclude_contentless: "true",
+          limit: 50,
         },
       });
 
