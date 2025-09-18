@@ -111,7 +111,7 @@ export default function Correlate() {
             />
           )}
         </div>
-        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
+        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
           {bars && stocksArray && (
             <Heatmap bars={bars} stocksArr={stocksArray} />
           )}

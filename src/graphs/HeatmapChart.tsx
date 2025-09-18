@@ -86,13 +86,19 @@ export default function Heatmap({ bars, stocksArr }: Props) {
         backgroundColor: (ctx: any) => {
           const correlation = ctx.dataset.data[ctx.dataIndex].v;
 
-          const normalizedCorrelation = (correlation + 1) / 2;
-
-          const r = Math.round(94 + (236 - 94) * normalizedCorrelation);
-          const g = Math.round(79 + (165 - 79) * normalizedCorrelation);
-          const b = Math.round(162 + (14 - 162) * normalizedCorrelation);
-
-          return `rgb(${r}, ${g}, ${b})`;
+          if (correlation < 0) {
+            const ratio = correlation + 1;
+            const r = Math.round(94 + (240 - 94) * ratio);
+            const g = Math.round(79 + (240 - 79) * ratio);
+            const b = Math.round(162 + (240 - 162) * ratio);
+            return `rgb(${r},${g},${b})`;
+          } else {
+            const ratio = correlation;
+            const r = Math.round(240 + (236 - 240) * ratio);
+            const g = Math.round(240 + (165 - 240) * ratio);
+            const b = Math.round(240 + (14 - 240) * ratio);
+            return `rgb(${r},${g},${b})`;
+          }
         },
         width: ({ chart }: any) =>
           chart.chartArea ? chart.chartArea.width / nstocks : 0,
@@ -113,9 +119,12 @@ export default function Heatmap({ bars, stocksArr }: Props) {
       },
       tooltip: {
         callbacks: {
-          label: (ctx) => {
+          label: function (ctx) {
             const point = ctx.raw as HeatmapPoint;
-            return `Correlation: ${point.v.toFixed(2)}`;
+            const xLabel = point.x;
+            const yLabel = point.y;
+            const correlation = point.v.toFixed(2);
+            return `(${xLabel}, ${yLabel}): ${correlation}`;
           },
         },
       },

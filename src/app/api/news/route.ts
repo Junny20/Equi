@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
         },
         params: {
           symbols: symbols,
+          exclude_contentless: "true",
         },
       });
 

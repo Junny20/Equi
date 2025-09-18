@@ -70,8 +70,8 @@ export default function MultipleStockLineChart({
       title: {
         display: true,
         text: returns
-          ? "Daily returns of stock over time period"
-          : "Closing prices of stock over time period",
+          ? "Interval based returns of stock over time period"
+          : "Interval based closing prices of stock over time period",
       },
       legend: {
         position: "top",
