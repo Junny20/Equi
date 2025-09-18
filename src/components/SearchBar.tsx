@@ -44,7 +44,7 @@ export default function SearchBar({
         </label>
         <input
           id="stock"
-          className="border-2 border-gray-300 rounded-lg p-1 focus:outline-none focus:border-gray-500 max-w-[300px] transiton duration-500"
+          className="border-2 border-gray-300 rounded-lg p-1 focus:outline-none focus:border-gray-500 w-[300px] transiton duration-500"
           type="text"
           value={stock}
           onChange={handleChange}

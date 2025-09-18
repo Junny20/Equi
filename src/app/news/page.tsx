@@ -106,8 +106,8 @@ export default function News() {
                 </a>
               </div>
               {urls.slice(2).map((e: string, i: number) => (
-                <div className="md:col-span-2 lg:col-span-1">
-                  <a key={i} href={e} target="_blank">
+                <div key={i} className="md:col-span-2 lg:col-span-1">
+                  <a href={e} target="_blank">
                     <img className="w-full" src={thumbs[2 + i]} />
                     <p className="text-sm text-gray-700 line-clamp-1">
                       {headlines[2 + i]}

@@ -5,7 +5,6 @@ import next from "next";
 export async function GET(req: NextRequest) {
   const url = req.nextUrl;
   const symbols = url.searchParams.get("symbols");
-  const symbolsArr = symbols?.split(",");
   const timeframe = url.searchParams.get("timeframe");
   const start = url.searchParams.get("start");
   const end = url.searchParams.get("end");
