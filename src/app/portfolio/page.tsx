@@ -8,7 +8,9 @@ export default function Portfolio() {
       <section>
         <NavBar />
       </section>
-      <div>Porfolio insights</div>
+      <section>
+        <p>EquiPortfolio - ...</p>
+      </section>
     </>
   );
 }

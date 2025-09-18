@@ -85,18 +85,26 @@ export default function Model() {
       <section>
         <NavBar />
       </section>
-      <section>
-        <SearchBar
-          placeholder="Enter stock: "
-          handleSubmit={handleSubmit}
-          stock={stock}
-          setStock={setStock}
-          timeframe={timeframe}
-          setTimeframe={setTimeframe}
-          timeperiod={timeperiod}
-          setTimeperiod={setTimeperiod}
-        />
-      </section>
+
+      <main className="lg:m-10 md:m-9 m-8">
+        <section className="mx:1 my-6">
+          <p className="text-lg">
+            <strong>EquiPredict</strong> - Predicts future stock prices
+          </p>
+        </section>
+        <section>
+          <SearchBar
+            placeholder="Enter stock: "
+            handleSubmit={handleSubmit}
+            stock={stock}
+            setStock={setStock}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+            timeperiod={timeperiod}
+            setTimeperiod={setTimeperiod}
+          />
+        </section>
+      </main>
 
       <section>
         <div className="h-auto w-[70vw] mx-auto my-[2vw]">

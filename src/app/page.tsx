@@ -82,41 +82,50 @@ export default function Home() {
       <section>
         <NavBar />
       </section>
+
+      <main className="lg:m-10 md:m-9 m-8">
+        <section className="mx:1 my-6">
+          <p className="text-lg">
+            <strong>EquiData</strong> - Enter stock and get multitude of stock
+            data
+          </p>
+        </section>
+        <section>
+          <SearchBar
+            placeholder="Enter stock: "
+            handleSubmit={handleSubmit}
+            stock={stock}
+            setStock={setStock}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+            timeperiod={timeperiod}
+            setTimeperiod={setTimeperiod}
+          />
+        </section>
+      </main>
+
+      {/* add drawdowns chart (highs, lows) add correlation with spy, add
+      intraday returns */}
       <section>
-        <SearchBar
-          placeholder="Enter stock: "
-          handleSubmit={handleSubmit}
-          stock={stock}
-          setStock={setStock}
-          timeframe={timeframe}
-          setTimeframe={setTimeframe}
-          timeperiod={timeperiod}
-          setTimeperiod={setTimeperiod}
-        />
-      </section>
-      <section>
-        <div className="h-auto w-[80vw] mx-auto my-[2vw]">
-          {bars && <CandlestickChart bars={bars} />}
-        </div>
-
-        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
-          {bars && <LineChart bars={bars} />}
-        </div>
-
-        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
-          {bars && <VolatilityLineChart bars={bars} />}
-        </div>
-
-        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
-          {bars && <DailyReturnsBarChart bars={bars} />}
-        </div>
-
-        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
-          {bars && <DailyReturnsHistogramChartStdev bars={bars} />}
-        </div>
-
-        <div className="h-auto w-[70vw] mx-auto my-[2vw]">
-          {bars && <DailyReturnsHistogramChartEven bars={bars} />}
+        <div className="md:px-4 lg:px-10 md:py-4 py-10">
+          <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:justify-items-center">
+            <div className="lg:w-full">{bars && <LineChart bars={bars} />}</div>
+            <div className="lg:w-full">
+              {bars && <CandlestickChart bars={bars} />}
+            </div>
+            <div className="lg:w-full">
+              {bars && <VolatilityLineChart bars={bars} />}
+            </div>
+            <div className="lg:w-full">
+              {bars && <DailyReturnsBarChart bars={bars} />}
+            </div>
+            <div className="lg:w-full">
+              {bars && <DailyReturnsHistogramChartStdev bars={bars} />}
+            </div>
+            <div className="lg:w-full">
+              {bars && <DailyReturnsHistogramChartEven bars={bars} />}
+            </div>
+          </div>
         </div>
       </section>
     </>

@@ -87,21 +87,28 @@ export default function Correlate() {
       <section>
         <NavBar />
       </section>
-      <section>
-        <div>Finds the correlation between two stocks or more</div>
-      </section>
-      <section>
-        <SearchBar
-          placeholder="Enter stocks separated by a comma: e.g AAPL,TSLA"
-          handleSubmit={handleSubmit}
-          stock={stock}
-          setStock={setStock}
-          timeframe={timeframe}
-          setTimeframe={setTimeframe}
-          timeperiod={timeperiod}
-          setTimeperiod={setTimeperiod}
-        />
-      </section>
+
+      <main className="lg:m-10 md:m-9 m-8">
+        <section className="mx:1 my-6">
+          <p className="text-lg">
+            <strong>EquiCorrelate</strong> - Finds the correlation between two
+            stocks or more data
+          </p>
+        </section>
+        <section>
+          <SearchBar
+            placeholder="Enter stocks separated by a comma: e.g AAPL,TSLA"
+            handleSubmit={handleSubmit}
+            stock={stock}
+            setStock={setStock}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+            timeperiod={timeperiod}
+            setTimeperiod={setTimeperiod}
+          />
+        </section>
+      </main>
+
       <section>
         <div className="h-auto w-[70vw] mx-auto my-[2vw]">
           {bars?.length == 2 && stocksArray?.length == 2 && (
