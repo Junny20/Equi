@@ -2,14 +2,17 @@
 
 import NavBar from "@/components/NavBar";
 import PortfolioBuilder from "@/components/PortfolioBuilder";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
 export default function Portfolio() {
+  const [show, setShow] = useState<boolean>(false);
   const [stock, setStock] = useState<string>("");
   const [shares, setShares] = useState<string>("");
-  const [stocksArr, setStocksArr] = useState<string[] | null>(null);
-  const [pricesArr, setPricesArr] = useState<number[] | null>(null);
+  const [totalShares, setTotalShares] = useState<number>(0);
+  const [stocksArr, setStocksArr] = useState<string[]>([]);
+  const [pricesArr, setPricesArr] = useState<number[]>([]);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const handleSubmit = async (
     e: FormEvent<HTMLFormElement>,
@@ -23,31 +26,42 @@ export default function Portfolio() {
     console.log(formattedStocks);
 
     try {
-      const res = await fetch(`api/stocks/quotes?symbols=${formattedStocks}`);
+      const res = await fetch(`/api/stocks/trades?symbols=${formattedStocks}`);
       const data = await res.json();
 
-      console.log(data);
+      if (data.trades) {
+        const stocksArr = Object.keys(data.trades);
 
-      if (data.quotes) {
-        const stocksArr = Object.keys(data.quotes);
-        setStocksArr(stocksArr);
-        let askingPrices = [];
+        setStocksArr((prevValue) => [...prevValue, ...stocksArr]);
 
-        for (const stocks of stocksArr) {
-          const askingPrice = data.quotes[stocks]["ap"];
-          askingPrices.push(askingPrice);
+        let prices = [];
+
+        for (const stock of stocksArr) {
+          const price = data.trades[stock]["p"];
+          prices.push(price);
         }
 
-        setPricesArr(askingPrices);
+        setPricesArr((prevValue) => [...prevValue, ...prices]);
+
+        if (!show) {
+          setShow((prevValue) => !prevValue);
+        }
       } else {
-        console.error("No quote data available.");
+        console.error("No trade data available.");
         return;
       }
     } catch (err) {
-      console.error("Failed to fetch quote data from frontend:", err);
+      console.error("Failed to fetch trade data from frontend:", err);
       return;
     }
   };
+
+  useEffect(() => {
+    const totalPrice =
+      pricesArr.reduce((sum, e) => sum + e, 0) * parseFloat(shares);
+    setTotalPrice(Number(totalPrice.toFixed(2)));
+    setTotalShares(Number((pricesArr.length * parseFloat(shares)).toFixed(2)));
+  }, [pricesArr]);
 
   return (
     <>
@@ -74,6 +88,52 @@ export default function Portfolio() {
           />
         </section>
       </main>
+
+      <section>
+        {stocksArr &&
+          pricesArr &&
+          stocksArr.length === pricesArr.length &&
+          show && (
+            <table className="table-auto w-[92vw] mx-auto text-left">
+              <thead>
+                <tr>
+                  <th className="border border-gray-400 p-1">Symbol</th>
+                  <th className="border border-gray-400 p-1">
+                    Latest price traded
+                  </th>
+                  <th className="border border-gray-400 p-1">Shares</th>
+                  <th className="border border-gray-400 p-1">
+                    Total price of shares
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {stocksArr.map((e: string, i: number) => (
+                  <tr key={i}>
+                    <td className="border border-gray-400 p-1">{e}</td>
+                    <td className="border border-gray-400 p-1">
+                      {pricesArr[i]}
+                    </td>
+                    <td className="border border-gray-400 p-1">{shares}</td>
+                    <td className="border border-gray-400 p-1">
+                      {(parseFloat(shares) * pricesArr[i]).toFixed(1)}
+                    </td>
+                    {/* fix parseInt ugly ass code */}
+                  </tr>
+                ))}
+                <tr>
+                  <td></td>
+
+                  <td className="font-bold border border-gray-400 p-1">
+                    Total:{" "}
+                  </td>
+                  <td className="border border-gray-400 p-1">{totalShares}</td>
+                  <td className="border border-gray-400 p-1">{totalPrice}</td>
+                </tr>
+              </tbody>
+            </table>
+          )}
+      </section>
     </>
   );
 }
