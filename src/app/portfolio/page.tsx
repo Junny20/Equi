@@ -11,20 +11,23 @@ export default function Portfolio() {
   const [showReset, setShowReset] = useState<boolean>(false);
   const [stock, setStock] = useState<string>("");
   const [shares, setShares] = useState<string>("");
+  const [position, setPosition] = useState<string>("Long");
   const [sharesArr, setSharesArr] = useState<number[]>([]);
   const [totalShares, setTotalShares] = useState<number>(0);
   const [stocksArr, setStocksArr] = useState<string[]>([]);
   const [pricesArr, setPricesArr] = useState<number[]>([]);
+  const [positionsArr, setPositionsArr] = useState<string[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [errMessage, setErrMessage] = useState<string | null>(null);
 
   const handleSubmit = async (
     e: FormEvent<HTMLFormElement>,
     stock: string,
-    shares: string
+    shares: string,
+    position: string
   ) => {
     e.preventDefault();
-    console.log(stock, shares);
+    console.log(stock, shares, position);
 
     const formattedStocks = stock.replace(/\s/g, "");
     const formattedShares = shares.replace(/\s/g, "");
@@ -32,7 +35,6 @@ export default function Portfolio() {
     try {
       const res = await fetch(`/api/stocks/trades?symbols=${formattedStocks}`);
       const data = await res.json();
-      console.log(data);
 
       if (data.trades) {
         const stocksArr = formattedStocks.split(",");
@@ -40,8 +42,13 @@ export default function Portfolio() {
           .split(",")
           .map((e: string) => Number(e));
 
-        console.log(stocksArr);
-        console.log(sharesArr);
+        if (sharesArr.length === 1) {
+          sharesArr.push(...Array(stocksArr.length - 1).fill(sharesArr[0]));
+        }
+
+        const positionsArr: string[] = new Array(stocksArr.length).fill(
+          position
+        );
 
         if (Object.keys(data.trades).length === 0) {
           console.error(
@@ -95,6 +102,7 @@ export default function Portfolio() {
 
         setStocksArr((prevValue) => [...prevValue, ...stocksArr]);
         setSharesArr((prevValue) => [...prevValue, ...sharesArr]);
+        setPositionsArr((prevValue) => [...prevValue, ...positionsArr]);
 
         let prices = [];
 
@@ -144,21 +152,13 @@ export default function Portfolio() {
     let totalPrice = 0;
     let totalShares = 0;
 
-    if (sharesArr.length === 1) {
-      pricesArr.forEach((e: number) => {
-        totalPrice += e * sharesArr[0];
-      });
-      totalShares = pricesArr.length * sharesArr[0];
-    } else {
-      pricesArr.forEach((e: number, i: number) => {
-        totalPrice += e * sharesArr[i];
-      });
-      totalShares = sharesArr.reduce((sum, e) => sum + e, 0);
-    }
+    pricesArr.forEach((e: number, i: number) => {
+      totalPrice += e * sharesArr[i];
+    });
+    totalShares = sharesArr.reduce((sum, e) => sum + e, 0);
 
     setTotalPrice(Number(totalPrice.toFixed(2)));
     setTotalShares(Number(totalShares.toFixed(2)));
-    console.log(pricesArr, totalPrice, totalShares);
   }, [pricesArr]);
 
   return (
@@ -177,11 +177,13 @@ export default function Portfolio() {
 
         <section className="mb-4">
           <PortfolioBuilder
-            placeholder="Add stock to portfolio:"
+            placeholder="Add stock/s to portfolio:"
             stock={stock}
             setStock={setStock}
             shares={shares}
             setShares={setShares}
+            position={position}
+            setPosition={setPosition}
             handleSubmit={handleSubmit}
           />
         </section>
@@ -200,6 +202,7 @@ export default function Portfolio() {
                     <th className="border border-gray-400 p-1">
                       Latest price traded
                     </th>
+                    <th className="border border-gray-400 p-1">Position</th>
                     <th className="border border-gray-400 p-1">Shares</th>
                     <th className="border border-gray-400 p-1">
                       Total price of shares
@@ -214,18 +217,19 @@ export default function Portfolio() {
                         {pricesArr[i]}
                       </td>
                       <td className="border border-gray-400 p-1">
-                        {sharesArr.length === 1 ? sharesArr[0] : sharesArr[i]}
+                        {positionsArr[i]}
                       </td>
                       <td className="border border-gray-400 p-1">
-                        {sharesArr.length === 1
-                          ? Number(sharesArr[0] * pricesArr[i]).toFixed(2)
-                          : Number(sharesArr[i] * pricesArr[i]).toFixed(2)}
+                        {sharesArr[i]}
+                      </td>
+                      <td className="border border-gray-400 p-1">
+                        {Number(sharesArr[i] * pricesArr[i]).toFixed(2)}
                       </td>
                     </tr>
                   ))}
                   <tr>
                     <td></td>
-
+                    <td></td>
                     <td className="font-bold border border-gray-400 p-1">
                       Total:{" "}
                     </td>

@@ -6,10 +6,13 @@ type Props = {
   setStock: (s: string) => void;
   shares: string;
   setShares: (s: string) => void;
+  position: string;
+  setPosition: (s: string) => void;
   handleSubmit: (
     e: FormEvent<HTMLFormElement>,
     stock: string,
-    shares: string
+    shares: string,
+    position: string
   ) => void;
 };
 
@@ -19,13 +22,15 @@ export default function PortfolioBuilder({
   setStock,
   shares,
   setShares,
+  position,
+  setPosition,
   handleSubmit,
 }: Props) {
   return (
     <form
       className="flex justify-between items-center border-2 border-gray-300 bg-white shadow-md rounded-xl p-1"
       onSubmit={(e) => {
-        handleSubmit(e, stock, shares);
+        handleSubmit(e, stock, shares, position);
       }}
     >
       <section className="flex justify-center items-center">
@@ -58,6 +63,20 @@ export default function PortfolioBuilder({
           }}
           placeholder="Number of shares: "
         ></input>
+      </section>
+
+      <section>
+        <label className="font-medium text-gray-700" htmlFor="position">
+          Position:{" "}
+        </label>
+        <select
+          id="position"
+          className="border-2 border-gray-300 rounded-lg p-1"
+          onChange={(e) => setPosition(e.target.value)}
+        >
+          <option value="Long">Long</option>
+          <option value="Short">Short</option>
+        </select>
       </section>
 
       <section className="mx-2">
