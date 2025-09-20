@@ -21,8 +21,6 @@ function pearsonCorrelation(x: number[], y: number[]): number {
     denomY += dy * dy;
   }
 
-  console.log(numerator, denomX, denomY);
-
   const pearsonCorr = numerator / Math.sqrt(denomX * denomY);
   return pearsonCorr;
 }

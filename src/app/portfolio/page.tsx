@@ -6,6 +6,19 @@ import ResetButton from "@/components/ResetButton";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
+import Heatmap from "@/graphs/HeatmapChart";
+
+type Bar = {
+  c: number;
+  h: number;
+  l: number;
+  n: number;
+  o: number;
+  t: string;
+  v: number;
+  vw: number;
+};
+
 export default function Portfolio() {
   const [show, setShow] = useState<boolean>(false);
   const [showReset, setShowReset] = useState<boolean>(false);
@@ -19,6 +32,40 @@ export default function Portfolio() {
   const [positionsArr, setPositionsArr] = useState<string[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [errMessage, setErrMessage] = useState<string | null>(null);
+
+  const [bars, setBars] = useState<Bar[][] | null>(null);
+
+  const getBars = async (stocksArr: string[]) => {
+    console.log(stocksArr);
+
+    const stocks = stocksArr.join(",");
+    const defaultTimeframe = "1D";
+    const defaultEnd = new Date();
+    const defaultStart = new Date();
+    defaultStart.setFullYear(defaultEnd.getFullYear() - 1);
+
+    let stockBars: Bar[][] = [];
+
+    try {
+      const res = await fetch(
+        `api/stocks?symbols=${stocks}&timeframe=${defaultTimeframe}&start=${defaultStart.toISOString()}&end=${defaultEnd.toISOString()}`
+      );
+      const data = await res.json();
+
+      console.log(data);
+
+      for (const stock of stocksArr) {
+        const bars = data.bars[stock];
+        stockBars.push(bars);
+      }
+
+      console.log(stockBars);
+
+      setBars(stockBars);
+    } catch (err) {
+      console.error();
+    }
+  };
 
   const handleSubmit = async (
     e: FormEvent<HTMLFormElement>,
@@ -37,16 +84,16 @@ export default function Portfolio() {
       const data = await res.json();
 
       if (data.trades) {
-        const stocksArr = formattedStocks.split(",");
+        const stocksArray = formattedStocks.split(",");
         const sharesArr = formattedShares
           .split(",")
           .map((e: string) => Number(e));
 
         if (sharesArr.length === 1) {
-          sharesArr.push(...Array(stocksArr.length - 1).fill(sharesArr[0]));
+          sharesArr.push(...Array(stocksArray.length - 1).fill(sharesArr[0]));
         }
 
-        const positionsArr: string[] = new Array(stocksArr.length).fill(
+        const positionsArr: string[] = new Array(stocksArray.length).fill(
           position
         );
 
@@ -66,7 +113,7 @@ export default function Portfolio() {
             setShowReset((prevValue) => !prevValue);
           }
           return;
-        } else if (Object.keys(data.trades).length !== stocksArr.length) {
+        } else if (Object.keys(data.trades).length !== stocksArray.length) {
           console.error(
             "Mismatch between trading data length and selected stocks length. Check if all symbols are indeed spelled correctly."
           );
@@ -84,7 +131,7 @@ export default function Portfolio() {
           return;
         } else if (
           sharesArr.length !== 1 &&
-          sharesArr.length !== stocksArr.length
+          sharesArr.length !== stocksArray.length
         ) {
           console.error(
             "Invalid format in shares input. One number or a list of comma separated numbers must be entered."
@@ -100,13 +147,17 @@ export default function Portfolio() {
           return;
         }
 
-        setStocksArr((prevValue) => [...prevValue, ...stocksArr]);
+        const updatedStocksArr = [...stocksArr, ...stocksArray];
+
+        setStocksArr((prevValue) => [...prevValue, ...stocksArray]);
         setSharesArr((prevValue) => [...prevValue, ...sharesArr]);
         setPositionsArr((prevValue) => [...prevValue, ...positionsArr]);
 
+        getBars(updatedStocksArr);
+
         let prices = [];
 
-        for (const stock of stocksArr) {
+        for (const stock of stocksArray) {
           const price = data.trades[stock.toUpperCase()]["p"];
           prices.push(price);
         }
@@ -258,6 +309,14 @@ export default function Portfolio() {
           </section>
         )}
       </main>
+
+      <section>
+        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
+          {bars && stocksArr && bars.length === stocksArr.length && (
+            <Heatmap bars={bars} stocksArr={stocksArr} />
+          )}
+        </div>
+      </section>
     </>
   );
 }
