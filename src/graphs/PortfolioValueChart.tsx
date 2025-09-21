@@ -37,39 +37,75 @@ type Props = {
   bars: Bar[][];
   stocksArr: string[];
   sharesArr: number[];
+  SPYbars?: Bar[];
+  totalPrice?: number;
 };
 
 export default function PortfolioValueChart({
   bars,
   stocksArr,
   sharesArr,
+  SPYbars,
+  totalPrice,
 }: Props) {
-  const dates: string[] = bars[0].map((e: Bar) =>
+  console.log(sharesArr);
+
+  const minLength = Math.min(...bars.map((e: Bar[]) => e.length));
+  let minIndex = 0;
+
+  for (let i = 0; i < bars.length; i++) {
+    if (bars[i].length === minLength) {
+      minIndex = i;
+    }
+  }
+
+  console.log(minIndex);
+  console.log(bars[minIndex]);
+
+  const dates: string[] = bars[minIndex].map((e: Bar) =>
     new Date(e.t).toLocaleDateString()
   );
 
-  console.log(sharesArr);
-
-  const values = bars[0].map((_: Bar, i: number) => {
+  const values = bars[minIndex].map((_: Bar, i: number) => {
     let total = 0;
     for (let j = 0; j < bars.length; j++) {
-      console.log(bars[j][i].c * sharesArr[j]);
       total += bars[j][i].c * sharesArr[j];
     }
 
     return total;
   });
 
+  let SPYclosingPrices: number[] = [];
+  let SPYtotalShares: number = 0;
+
+  if (SPYbars && totalPrice) {
+    SPYclosingPrices = SPYbars.map((e: Bar) => e.c);
+    SPYtotalShares = values[0] / SPYclosingPrices[0];
+  }
+
   const data = {
     labels: dates,
     datasets: [
       {
+        label: "Portfolio",
         data: values,
         borderColor: "rgb(75, 192, 192)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         tension: 0.2,
         fill: false,
       },
+      ...(SPYbars && SPYclosingPrices.length > 0
+        ? [
+            {
+              label: "S&P 500 Benchmark",
+              data: SPYclosingPrices?.map((e: number) => e * SPYtotalShares),
+              borderColor: "rgba(87, 192, 75, 1)",
+              backgroundColor: "rgba(75, 192, 91, 0.2)",
+              tension: 0.2,
+              fill: false,
+            },
+          ]
+        : []),
     ],
   };
 
@@ -81,9 +117,6 @@ export default function PortfolioValueChart({
       title: {
         display: true,
         text: "Portfolio value over a year",
-      },
-      legend: {
-        display: false,
       },
       tooltip: {
         mode: "index",

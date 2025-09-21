@@ -37,6 +37,7 @@ export default function Portfolio() {
   const [errMessage, setErrMessage] = useState<string | null>(null);
 
   const [bars, setBars] = useState<Bar[][] | null>(null);
+  const [SPYbars, setSPYBars] = useState<Bar[] | null>(null);
 
   const getBars = async (stocksArr: string[]) => {
     console.log(stocksArr);
@@ -66,7 +67,26 @@ export default function Portfolio() {
 
       setBars(stockBars);
     } catch (err) {
-      console.error();
+      console.error(err);
+      setErrMessage(`Failed to fetch stock data: ${err}`);
+    }
+
+    try {
+      const res = await fetch(
+        `api/stocks?symbols=SPY&timeframe=${defaultTimeframe}&start=${defaultStart.toISOString()}&end=${defaultEnd.toISOString()}`
+      );
+      const data = await res.json();
+      console.log(data);
+
+      if (Object.keys(data.bars).length > 0) {
+        setSPYBars(data.bars.SPY);
+      } else {
+        console.error("No SPY data in bars.");
+        setErrMessage("No SPY data in bars.");
+      }
+    } catch (err) {
+      console.error(err);
+      setErrMessage(`Failed to fetch SPY data: ${err}`);
     }
   };
 
@@ -330,11 +350,15 @@ export default function Portfolio() {
             stocksArr &&
             sharesArr &&
             bars.length === stocksArr.length &&
-            sharesArr && (
+            sharesArr &&
+            SPYbars &&
+            totalPrice && (
               <PortfolioValueChart
                 bars={bars}
                 stocksArr={stocksArr}
                 sharesArr={sharesArr}
+                SPYbars={SPYbars}
+                totalPrice={totalPrice}
               />
             )}
         </div>
