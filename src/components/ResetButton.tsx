@@ -5,6 +5,7 @@ type Props = {
   setStocksArr: (s: string[]) => void;
   setPricesArr: (n: number[]) => void;
   setShowReset: (b: boolean) => void;
+  setShowDone: (b: boolean) => void;
 };
 
 export default function ResetButton({
@@ -14,6 +15,7 @@ export default function ResetButton({
   setStocksArr,
   setPricesArr,
   setShowReset,
+  setShowDone,
 }: Props) {
   const handleClick = () => {
     console.log("Reset button clicked");
@@ -23,6 +25,7 @@ export default function ResetButton({
     setStocksArr([]);
     setPricesArr([]);
     setShowReset(false);
+    setShowDone(false);
   };
   return <button onClick={handleClick}>Reset</button>;
 }

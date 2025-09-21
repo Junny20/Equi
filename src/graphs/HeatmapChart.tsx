@@ -8,6 +8,7 @@ import {
   Legend,
   Title,
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import { MatrixElement, MatrixController } from "chartjs-chart-matrix";
 import { Chart } from "react-chartjs-2";
@@ -20,7 +21,8 @@ ChartJS.register(
   Legend,
   Title,
   MatrixElement,
-  MatrixController
+  MatrixController,
+  ChartDataLabels
 );
 
 type Bar = {
@@ -127,6 +129,11 @@ export default function Heatmap({ bars, stocksArr }: Props) {
             return `(${xLabel}, ${yLabel}): ${correlation}`;
           },
         },
+      },
+      datalabels: {
+        color: "black",
+        font: { weight: "bold", size: 12 },
+        formatter: (value: any) => value.v.toFixed(2),
       },
     },
     scales: {

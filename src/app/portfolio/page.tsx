@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
 import Heatmap from "@/graphs/HeatmapChart";
+import PortfolioValueChart from "@/graphs/PortfolioValueChart";
 
 type Bar = {
   c: number;
@@ -22,6 +23,8 @@ type Bar = {
 export default function Portfolio() {
   const [show, setShow] = useState<boolean>(false);
   const [showReset, setShowReset] = useState<boolean>(false);
+  const [showDone, setShowDone] = useState<boolean>(false);
+
   const [stock, setStock] = useState<string>("");
   const [shares, setShares] = useState<string>("");
   const [position, setPosition] = useState<string>("Long");
@@ -76,7 +79,7 @@ export default function Portfolio() {
     e.preventDefault();
     console.log(stock, shares, position);
 
-    const formattedStocks = stock.replace(/\s/g, "");
+    const formattedStocks = stock.replace(/\s/g, "").toUpperCase();
     const formattedShares = shares.replace(/\s/g, "");
 
     try {
@@ -147,18 +150,14 @@ export default function Portfolio() {
           return;
         }
 
-        const updatedStocksArr = [...stocksArr, ...stocksArray];
-
         setStocksArr((prevValue) => [...prevValue, ...stocksArray]);
         setSharesArr((prevValue) => [...prevValue, ...sharesArr]);
         setPositionsArr((prevValue) => [...prevValue, ...positionsArr]);
 
-        getBars(updatedStocksArr);
-
         let prices = [];
 
         for (const stock of stocksArray) {
-          const price = data.trades[stock.toUpperCase()]["p"];
+          const price = data.trades[stock]["p"];
           prices.push(price);
         }
 
@@ -171,6 +170,9 @@ export default function Portfolio() {
         setShares("");
         if (!showReset) {
           setShowReset((prevValue) => !prevValue);
+        }
+        if (!showDone) {
+          setShowDone((prevValue) => !prevValue);
         }
         if (errMessage) {
           setErrMessage(null);
@@ -294,8 +296,19 @@ export default function Portfolio() {
             )}
         </section>
 
-        {showReset && (
-          <section>
+        <section>
+          {showDone && (
+            <div className="bg-gray-700 text-white inline-block rounded-lg px-2 py-1 mt-4">
+              <button
+                onClick={() => {
+                  getBars(stocksArr);
+                }}
+              >
+                Done
+              </button>
+            </div>
+          )}
+          {showReset && (
             <div className="bg-gray-700 text-white inline-block rounded-lg px-2 py-1 mt-4">
               <ResetButton
                 setStock={setStock}
@@ -304,13 +317,28 @@ export default function Portfolio() {
                 setStocksArr={setStocksArr}
                 setPricesArr={setPricesArr}
                 setShowReset={setShowReset}
+                setShowDone={setShowDone}
               />
             </div>
-          </section>
-        )}
+          )}
+        </section>
       </main>
 
       <section>
+        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
+          {bars &&
+            stocksArr &&
+            sharesArr &&
+            bars.length === stocksArr.length &&
+            sharesArr && (
+              <PortfolioValueChart
+                bars={bars}
+                stocksArr={stocksArr}
+                sharesArr={sharesArr}
+              />
+            )}
+        </div>
+
         <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
           {bars && stocksArr && bars.length === stocksArr.length && (
             <Heatmap bars={bars} stocksArr={stocksArr} />
