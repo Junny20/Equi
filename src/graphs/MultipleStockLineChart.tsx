@@ -67,6 +67,9 @@ export default function MultipleStockLineChart({
   };
   const options: ChartOptions<"line"> = {
     plugins: {
+      datalabels: {
+        display: false,
+      },
       title: {
         display: true,
         text: returns

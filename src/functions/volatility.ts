@@ -1,7 +1,9 @@
+import mean from "./mean";
+
 function volatility(data: number[], annualized: boolean = false): number {
-  const mean = data.reduce((sum, e) => sum + e, 0) / data.length;
+  const avg = mean(data);
   const variance =
-    data.reduce((sum, e) => sum + e ** 2, 0) / data.length - mean ** 2;
+    data.reduce((sum, e) => sum + e ** 2, 0) / data.length - avg ** 2;
   const volatility = Math.sqrt(variance);
 
   if (annualized) {

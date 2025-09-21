@@ -1,18 +1,30 @@
 import {
   Chart as ChartJS,
-  CategoryScale,
   LinearScale,
   BarElement,
+  PointElement,
+  LineElement,
   Tooltip,
   Title,
+  Legend,
 } from "chart.js";
 
-import { Bar } from "react-chartjs-2";
-import type { ChartOptions } from "chart.js";
+import { Chart } from "react-chartjs-2";
+import type { ChartOptions, ChartData } from "chart.js";
+
+import mean from "@/functions/mean";
 import dailyReturns from "@/functions/dailyReturns";
 import volatility from "@/functions/volatility";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Title);
+ChartJS.register(
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Title,
+  Legend
+);
 
 type Bar = {
   c: number;
@@ -30,71 +42,80 @@ type Props = {
 };
 
 export default function DailyReturnsHistogramChartStdev({ bars }: Props) {
-  const closingPrices = bars.map((e: Bar, i: number) => e.c);
-
+  const closingPrices = bars.map((e) => e.c);
   const dailyReturnsArr = dailyReturns(closingPrices);
 
-  const mean =
-    dailyReturnsArr.reduce((sum, e) => sum + e, 0) / dailyReturnsArr.length;
+  const avg = mean(dailyReturnsArr);
+  const vol = volatility(dailyReturnsArr);
 
-  const vol = volatility(dailyReturnsArr, false);
+  const sigmaEdges = [-3, -2, -1, 0, 1, 2, 3].map((s) => avg + s * vol);
 
-  const buckets = [
-    mean - 3 * vol,
-    mean - 2 * vol,
-    mean - 1 * vol,
-    mean,
-    mean + 1 * vol,
-    mean + 2 * vol,
-    mean + 3 * vol,
-  ];
+  const bucketCounts = new Array(sigmaEdges.length + 1).fill(0);
 
-  const bucketCounts = new Array(buckets.length + 1).fill(0);
-
-  for (const e of dailyReturnsArr) {
-    let placed = false;
-    for (let i = 0; i < buckets.length; i++) {
-      if (e < buckets[i]) {
-        bucketCounts[i]++;
-        placed = true;
-        break;
-      }
-    }
-    if (!placed) {
-      bucketCounts[buckets.length]++; // anything beyond last bucket
-    }
+  for (const r of dailyReturnsArr) {
+    const idx = sigmaEdges.findIndex((edge) => r < edge);
+    bucketCounts[idx === -1 ? sigmaEdges.length : idx]++;
   }
 
-  const histogramData = {
-    labels: [
-      `<${buckets[0].toFixed(3)}`,
-      `${buckets[0].toFixed(3)} to ${buckets[1].toFixed(3)}`,
-      `${buckets[1].toFixed(3)} to ${buckets[2].toFixed(3)}`,
-      `${buckets[2].toFixed(3)} to ${buckets[3].toFixed(3)}`,
-      `${buckets[3].toFixed(3)} to ${buckets[4].toFixed(3)}`,
-      `${buckets[4].toFixed(3)} to ${buckets[5].toFixed(3)}`,
-      `${buckets[5].toFixed(3)} to ${buckets[6].toFixed(3)}`,
-      `>${buckets[6].toFixed(3)}`,
-    ],
+  const bucketPercentages = bucketCounts.map(
+    (count) => (count / dailyReturnsArr.length) * 100
+  );
+
+  const bucketMidpoints: number[] = [];
+  for (let i = 0; i <= sigmaEdges.length; i++) {
+    const left = i === 0 ? avg - 3 * vol : sigmaEdges[i - 1];
+    const right = i === sigmaEdges.length ? avg + 3 * vol : sigmaEdges[i];
+    bucketMidpoints.push((left + right) / 2);
+  }
+
+  const labels = bucketMidpoints.map((mid, i) =>
+    i === 0
+      ? `<${sigmaEdges[0].toFixed(3)}`
+      : i === sigmaEdges.length
+      ? `>${sigmaEdges[sigmaEdges.length - 1].toFixed(3)}`
+      : `${sigmaEdges[i - 1].toFixed(3)} to ${sigmaEdges[i].toFixed(3)}`
+  );
+
+  const histogramData: ChartData<"bar" | "line"> = {
+    labels: labels,
     datasets: [
       {
-        label: "Frequency",
-        data: bucketCounts,
+        type: "bar" as const,
+        label: "Frequency (%)",
+        data: bucketPercentages.map((y, i) => ({ x: bucketMidpoints[i], y })),
+        backgroundColor: "rgba(56, 140, 200, 0.66)",
+        barPercentage: 1.0,
+        categoryPercentage: 1.0,
       },
     ],
   };
 
-  const options: ChartOptions<"bar"> = {
+  const options: ChartOptions<"bar" | "line"> = {
+    responsive: true,
     plugins: {
       title: {
         display: true,
-        text: "Histogram of stock's daily returns over time period separated using standard deviation of returns",
+        text: "Histogram of Daily Returns (with Std Dev Buckets & Normal Overlay)",
       },
-      legend: {
-        display: false,
+      legend: { display: true },
+      tooltip: {
+        callbacks: {
+          label: function (ctx) {
+            const p = ctx.raw as { x: number; y: number };
+            return `${p.y.toFixed(2)}%`;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        title: { display: true, text: "Daily Return" },
+      },
+      y: {
+        title: { display: true, text: "Frequency (%)" },
       },
     },
   };
 
-  return <Bar data={histogramData} options={options} />;
+  return <Chart type="bar" data={histogramData} options={options} />;
 }

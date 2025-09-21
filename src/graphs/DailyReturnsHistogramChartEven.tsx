@@ -7,9 +7,12 @@ import {
   Title,
 } from "chart.js";
 
-import { Bar } from "react-chartjs-2";
-import type { ChartOptions } from "chart.js";
+import { Chart } from "react-chartjs-2";
+import type { ChartOptions, ChartData } from "chart.js";
 import dailyReturns from "@/functions/dailyReturns";
+
+import mean from "@/functions/mean";
+import volatility from "@/functions/volatility";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Title);
 
@@ -30,49 +33,99 @@ type Props = {
 
 export default function DailyReturnsHistogramChartEven({ bars }: Props) {
   const closingPrices = bars.map((e: Bar, i: number) => e.c);
-
   const dailyReturnsArr = dailyReturns(closingPrices);
 
-  const min = Math.min(...dailyReturnsArr);
-  const max = Math.max(...dailyReturnsArr);
-  const numBins = 10;
+  const avg = mean(dailyReturnsArr);
+  const stdev = volatility(dailyReturnsArr);
 
-  const binWidth = (max - min) / numBins;
-  const bins = Array.from({ length: numBins }, (e, i) => min + i * binWidth);
+  const numBins = Math.round(Math.sqrt(dailyReturnsArr.length));
+  const maxAbs = Math.max(...dailyReturnsArr.map((e, i) => Math.abs(e)));
+  const binWidth = (2 * maxAbs) / numBins;
+
+  const bins = Array.from(
+    { length: numBins },
+    (_, i) => -maxAbs + i * binWidth
+  );
   const counts = new Array(numBins).fill(0);
 
   for (const e of dailyReturnsArr) {
-    const binIndex = Math.min(Math.floor((e - min) / binWidth), numBins - 1);
+    const binIndex = Math.min(Math.floor((e + maxAbs) / binWidth), numBins - 1);
     counts[binIndex]++;
+  }
+
+  const frequencies = counts.map((e, i) => (e / dailyReturnsArr.length) * 100);
+
+  const binCenters = bins.map((b) => b + binWidth / 2);
+
+  let normalScaled: number[] = [];
+  if (stdev > 0) {
+    const normalPdf = binCenters.map(
+      (x) =>
+        (1 / (stdev * Math.sqrt(2 * Math.PI))) *
+        Math.exp(-0.5 * ((x - avg) / stdev) ** 2)
+    );
+
+    normalScaled = normalPdf.map((y) => y * binWidth * 100);
+  } else {
+    normalScaled = new Array(binCenters.length).fill(0);
   }
 
   const labels = bins.map((b, i) =>
     i < bins.length - 1
-      ? `${b.toFixed(3)} to ${(b + binWidth).toFixed(3)}`
-      : `${b.toFixed(3)}+`
+      ? `${(b * 100).toFixed(2)}% to ${((b + binWidth) * 100).toFixed(2)}%`
+      : `${(b * 100).toFixed(2)}%+`
   );
 
-  const histogramData = {
+  const histogramData: ChartData<"bar" | "line"> = {
     labels: labels,
     datasets: [
       {
+        type: "line" as const,
+        label: "Normal Curve",
+        data: normalScaled,
+        borderColor: "rgba(54,162,235,1)",
+        borderWidth: 2,
+        fill: false,
+        pointRadius: 0,
+        tension: 0.2,
+      },
+      {
+        type: "bar",
         label: "Frequency",
-        data: counts,
+        data: frequencies,
+        backgroundColor: "rgba(54, 187, 235, 1)",
+        categoryPercentage: 1.0,
+        barPercentage: 1.0,
       },
     ],
   };
 
-  const options: ChartOptions<"bar"> = {
+  const options: ChartOptions<"bar" | "line"> = {
     plugins: {
       title: {
         display: true,
-        text: "Histogram of stock's daily returns over time period sorted using linear range",
+        text: "Histogram of Daily Returns (with Normal Overlay)",
       },
       legend: {
-        display: false,
+        display: true,
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: "Daily Return (%)",
+        },
+        stacked: true,
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Frequency (%)",
+        },
       },
     },
   };
 
-  return <Bar data={histogramData} options={options} />;
+  return <Chart type="bar" data={histogramData} options={options} />;
 }
