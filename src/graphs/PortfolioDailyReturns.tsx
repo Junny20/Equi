@@ -1,20 +1,28 @@
+import dailyReturns from "@/functions/dailyReturns";
+import mean from "@/functions/mean";
+import volatility from "@/functions/volatility";
+
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
   Tooltip,
+  Legend,
   Title,
 } from "chart.js";
 
+import type { ChartData, ChartOptions } from "chart.js";
 import { Chart } from "react-chartjs-2";
-import type { ChartOptions, ChartData } from "chart.js";
-import dailyReturns from "@/functions/dailyReturns";
 
-import mean from "@/functions/mean";
-import volatility from "@/functions/volatility";
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Title);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend,
+  Title
+);
 
 type Bar = {
   c: number;
@@ -28,12 +36,24 @@ type Bar = {
 };
 
 type Props = {
-  bars: Bar[];
+  bars: Bar[][];
+  sharesArr: number[];
 };
 
-export default function DailyReturnsHistogramChartEven({ bars }: Props) {
-  const closingPrices = bars.map((e: Bar, i: number) => e.c);
-  const dailyReturnsArr = dailyReturns(closingPrices);
+export default function PortfolioDailyReturns({ bars, sharesArr }: Props) {
+  const minLength = Math.min(...bars.map((e: Bar[]) => e.length));
+
+  let closingPricesArr: number[] = [];
+
+  for (let i = 0; i < minLength; i++) {
+    let totalValue = 0;
+    for (let j = 0; j < bars.length; j++) {
+      totalValue += bars[j][i].c * sharesArr[j];
+    }
+    closingPricesArr.push(totalValue);
+  }
+
+  const dailyReturnsArr = dailyReturns(closingPricesArr); // make a separate function
 
   var numBins = Math.round(Math.sqrt(dailyReturnsArr.length));
   if (numBins % 2 === 1) {
@@ -45,12 +65,13 @@ export default function DailyReturnsHistogramChartEven({ bars }: Props) {
 
   const bins = Array.from(
     { length: numBins },
-    (_, i) => -maxAbs + i * binWidth
+    (_, i: number) => -maxAbs + i * binWidth
   );
   const counts = new Array(numBins).fill(0);
 
   for (const e of dailyReturnsArr) {
     const binIndex = Math.min(Math.floor((e + maxAbs) / binWidth), numBins - 1);
+    console.log(binIndex);
     counts[binIndex]++;
   }
 
@@ -76,10 +97,11 @@ export default function DailyReturnsHistogramChartEven({ bars }: Props) {
     normalScaled = new Array(binCenters.length).fill(0);
   }
 
+  console.log(bins);
   const labels = bins.map((e: number, i: number) =>
-    i < bins.length - 1
-      ? `${(e * 100).toFixed(2)}% to ${((e + binWidth) * 100).toFixed(2)}%`
-      : `${(e * 100).toFixed(2)}%+`
+    i === bins.length - 1
+      ? `${(e * 100).toFixed(2)}%+`
+      : `${(e * 100).toFixed(2)}% to ${((e + binWidth) * 100).toFixed(2)}%`
   );
 
   const histogramData: ChartData<"bar" | "line"> = {
@@ -96,8 +118,7 @@ export default function DailyReturnsHistogramChartEven({ bars }: Props) {
         tension: 0.2,
       },
       {
-        type: "bar",
-        label: "Frequency",
+        label: "Daily returns of portfolio",
         data: frequencies,
         backgroundColor: "rgba(54, 187, 235, 1)",
         categoryPercentage: 1.0,
@@ -108,12 +129,15 @@ export default function DailyReturnsHistogramChartEven({ bars }: Props) {
 
   const options: ChartOptions<"bar" | "line"> = {
     plugins: {
+      datalabels: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Histogram of Daily Returns (with Normal Overlay)",
       },
       legend: {
-        display: true,
+        display: false,
       },
     },
     scales: {

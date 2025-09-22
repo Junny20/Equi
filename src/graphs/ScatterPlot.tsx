@@ -49,14 +49,16 @@ export default function ScatterPlot({ bars, stocksArr }: Props) {
       {
         label: `Returns of ${stocksArr[0]} vs returns of ${stocksArr[1]}`,
         data: data,
-        backgroundColor: "rgba(75,192,192,0.6)",
+        backgroundColor: "rgba(75, 192, 95, 0.6)",
       },
     ],
   };
 
   const options: ChartOptions<"scatter"> = {
-    responsive: true,
     plugins: {
+      datalabels: {
+        display: false,
+      },
       title: {
         display: true,
         text: `Scatter Plot (Correlation: ${correlation.toFixed(2)})`,

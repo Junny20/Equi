@@ -8,6 +8,8 @@ import type { FormEvent } from "react";
 
 import Heatmap from "@/graphs/HeatmapChart";
 import PortfolioValueChart from "@/graphs/PortfolioValueChart";
+import PortfolioDailyReturns from "@/graphs/PortfolioDailyReturns";
+import PortfolioDrawdownChart from "@/graphs/PortfolioDrawdownChart";
 
 type Bar = {
   c: number;
@@ -355,12 +357,23 @@ export default function Portfolio() {
             totalPrice && (
               <PortfolioValueChart
                 bars={bars}
-                stocksArr={stocksArr}
                 sharesArr={sharesArr}
                 SPYbars={SPYbars}
                 totalPrice={totalPrice}
               />
             )}
+        </div>
+
+        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
+          {bars && sharesArr && bars.length === sharesArr.length && (
+            <PortfolioDailyReturns bars={bars} sharesArr={sharesArr} />
+          )}
+        </div>
+
+        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
+          {bars && sharesArr && bars.length === sharesArr.length && (
+            <PortfolioDrawdownChart bars={bars} sharesArr={sharesArr} />
+          )}
         </div>
 
         <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">

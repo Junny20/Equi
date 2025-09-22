@@ -35,7 +35,6 @@ type Bar = {
 
 type Props = {
   bars: Bar[][];
-  stocksArr: string[];
   sharesArr: number[];
   SPYbars?: Bar[];
   totalPrice?: number;
@@ -43,13 +42,10 @@ type Props = {
 
 export default function PortfolioValueChart({
   bars,
-  stocksArr,
   sharesArr,
   SPYbars,
   totalPrice,
 }: Props) {
-  console.log(sharesArr);
-
   const minLength = Math.min(...bars.map((e: Bar[]) => e.length));
   let minIndex = 0;
 
@@ -58,13 +54,6 @@ export default function PortfolioValueChart({
       minIndex = i;
     }
   }
-
-  console.log(minIndex);
-  console.log(bars[minIndex]);
-
-  const dates: string[] = bars[minIndex].map((e: Bar) =>
-    new Date(e.t).toLocaleDateString()
-  );
 
   const values = bars[minIndex].map((_: Bar, i: number) => {
     let total = 0;
@@ -82,6 +71,10 @@ export default function PortfolioValueChart({
     SPYclosingPrices = SPYbars.map((e: Bar) => e.c);
     SPYtotalShares = values[0] / SPYclosingPrices[0];
   }
+
+  const dates: string[] = bars[minIndex].map((e: Bar) =>
+    new Date(e.t).toLocaleDateString()
+  );
 
   const data = {
     labels: dates,
