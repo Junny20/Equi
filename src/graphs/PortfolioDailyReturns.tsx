@@ -97,7 +97,6 @@ export default function PortfolioDailyReturns({ bars, sharesArr }: Props) {
     normalScaled = new Array(binCenters.length).fill(0);
   }
 
-  console.log(bins);
   const labels = bins.map((e: number, i: number) =>
     i === bins.length - 1
       ? `${(e * 100).toFixed(2)}%+`

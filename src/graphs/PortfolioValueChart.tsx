@@ -36,7 +36,7 @@ type Bar = {
 type Props = {
   bars: Bar[][];
   sharesArr: number[];
-  SPYbars?: Bar[];
+  SPYbars?: Bar[] | null;
   totalPrice?: number;
 };
 
@@ -82,20 +82,14 @@ export default function PortfolioValueChart({
       {
         label: "Portfolio",
         data: values,
-        borderColor: "rgb(75, 192, 192)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        tension: 0.2,
-        fill: false,
+        borderColor: "rgba(75, 192, 192, 0.5)",
       },
       ...(SPYbars && SPYclosingPrices.length > 0
         ? [
             {
               label: "S&P 500 Benchmark",
               data: SPYclosingPrices?.map((e: number) => e * SPYtotalShares),
-              borderColor: "rgba(87, 192, 75, 1)",
-              backgroundColor: "rgba(75, 192, 91, 0.2)",
-              tension: 0.2,
-              fill: false,
+              borderColor: "rgba(87, 192, 75, 0.5)",
             },
           ]
         : []),
@@ -118,7 +112,10 @@ export default function PortfolioValueChart({
     },
     scales: {
       y: {
-        display: true,
+        title: {
+          display: true,
+          text: "Value ($)",
+        },
         beginAtZero: false,
       },
     },
