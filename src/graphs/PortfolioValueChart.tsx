@@ -11,6 +11,7 @@ import {
 
 import { Line } from "react-chartjs-2";
 import type { ChartOptions } from "chart.js";
+import portfolioClosingPrices from "@/functions/portfolioClosingPrices";
 
 ChartJS.register(
   CategoryScale,
@@ -55,21 +56,18 @@ export default function PortfolioValueChart({
     }
   }
 
-  const values = bars[minIndex].map((_: Bar, i: number) => {
-    let total = 0;
-    for (let j = 0; j < bars.length; j++) {
-      total += bars[j][i].c * sharesArr[j];
-    }
-
-    return total;
-  });
+  const closingPricesArr: number[] = portfolioClosingPrices(
+    bars,
+    minLength,
+    sharesArr
+  );
 
   let SPYclosingPrices: number[] = [];
   let SPYtotalShares: number = 0;
 
   if (SPYbars && totalPrice) {
     SPYclosingPrices = SPYbars.map((e: Bar) => e.c);
-    SPYtotalShares = values[0] / SPYclosingPrices[0];
+    SPYtotalShares = closingPricesArr[0] / SPYclosingPrices[0];
   }
 
   const dates: string[] = bars[minIndex].map((e: Bar) =>
@@ -81,7 +79,7 @@ export default function PortfolioValueChart({
     datasets: [
       {
         label: "Portfolio",
-        data: values,
+        data: closingPricesArr,
         borderColor: "rgba(75, 192, 192, 0.5)",
       },
       ...(SPYbars && SPYclosingPrices.length > 0

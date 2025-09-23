@@ -7,7 +7,7 @@ import {
 } from "chart.js";
 
 import { Scatter } from "react-chartjs-2";
-import type { ChartOptions } from "chart.js";
+import type { ChartData, ChartOptions } from "chart.js";
 import dailyReturns from "@/functions/dailyReturns";
 import pearsonCorrelation from "@/functions/pearsonCorrelation";
 
@@ -43,7 +43,7 @@ export default function ScatterPlot({ bars, stocksArr }: Props) {
     y: returns2[i],
   }));
 
-  const chartData = {
+  const chartData: ChartData<"scatter"> = {
     labels: bars[0].map((e: Bar) => new Date(e.t).toLocaleDateString()),
     datasets: [
       {

@@ -1,5 +1,6 @@
 import cumulativeReturns from "@/functions/cumulativeReturns";
 import dailyReturns from "@/functions/dailyReturns";
+import portfolioClosingPrices from "@/functions/portfolioClosingPrices";
 
 import {
   Chart as ChartJS,
@@ -55,19 +56,17 @@ export default function PortfolioCumulativeReturns({
     }
   }
 
-  let closingPricesArr: number[] = [];
+  const closingPricesArr: number[] = portfolioClosingPrices(
+    bars,
+    minLength,
+    sharesArr
+  );
 
-  for (let i = 0; i < minLength; i++) {
-    let totalValue = 0;
-    for (let j = 0; j < bars.length; j++) {
-      totalValue += bars[j][i].c * sharesArr[j];
-    }
-    closingPricesArr.push(totalValue);
-  }
+  const dailyReturnsArr: number[] = dailyReturns(closingPricesArr);
 
-  const dailyReturnsArr = dailyReturns(closingPricesArr); // make a separate function
-
-  const cumulativeReturnsArr = cumulativeReturns(dailyReturnsArr);
+  const cumulativeReturnsArr: number[] = cumulativeReturns(dailyReturnsArr).map(
+    (e: number) => e * 100
+  ); //percentage
 
   let SPYclosingPrices: number[] = [];
   let SPYdailyReturns: number[] = [];
@@ -76,7 +75,9 @@ export default function PortfolioCumulativeReturns({
   if (SPYbars && totalPrice) {
     SPYclosingPrices = SPYbars.map((e: Bar) => e.c);
     SPYdailyReturns = dailyReturns(SPYclosingPrices);
-    SPYcumulativeReturns = cumulativeReturns(SPYdailyReturns);
+    SPYcumulativeReturns = cumulativeReturns(SPYdailyReturns).map(
+      (e: number) => e * 100
+    ); // possibly add parameter to function that maps to percentage instead of doing it here
   }
 
   const dates = bars[minIndex].map((e: Bar) =>
@@ -111,10 +112,23 @@ export default function PortfolioCumulativeReturns({
         display: false,
       },
       title: { display: true, text: "Cumulative returns of portfolio" },
+      tooltip: {
+        callbacks: {
+          label: (ctx: any) => `Cumulative returns: ${ctx.raw.toFixed(3)}%`,
+        },
+      },
     },
     elements: {
       point: {
         radius: 2,
+      },
+    },
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: "Cumulative return (%)",
+        },
       },
     },
   };

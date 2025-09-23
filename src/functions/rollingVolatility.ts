@@ -2,17 +2,13 @@ import volatility from "./volatility";
 
 function rollingVol(data: number[], days: number): number[] {
   let rollingVolArr: number[] = [];
-  const dataLength = data.length;
-  var end = 1;
-  while (end <= dataLength) {
-    if (end - days < 0) {
-      rollingVolArr.push(NaN);
-    } else {
-      const stdev = volatility(data.slice(end - days, end));
-      rollingVolArr.push(stdev);
-    }
-    end++;
+
+  for (let i = 0; i < data.length; i++) {
+    const windowStart = i - days + 1 < 0 ? 0 : i - days + 1;
+    const window = data.slice(windowStart, i + 1);
+    rollingVolArr.push(volatility(window));
   }
+
   return rollingVolArr;
 }
 

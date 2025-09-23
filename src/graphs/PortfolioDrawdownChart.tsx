@@ -1,3 +1,4 @@
+import portfolioClosingPrices from "@/functions/portfolioClosingPrices";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -52,15 +53,11 @@ export default function PortfolioDrawdownChart({
     }
   }
 
-  let totalValueArr: number[] = [];
-
-  for (let i = 0; i < minLength; i++) {
-    let totalValue = 0;
-    for (let j = 0; j < bars.length; j++) {
-      totalValue += bars[j][i].c * sharesArr[j];
-    }
-    totalValueArr.push(totalValue);
-  }
+  const totalValueArr: number[] = portfolioClosingPrices(
+    bars,
+    minLength,
+    sharesArr
+  );
 
   let peakValueArr: number[] = [];
 

@@ -11,6 +11,7 @@ import PortfolioValueChart from "@/graphs/PortfolioValueChart";
 import PortfolioDailyReturns from "@/graphs/PortfolioDailyReturns";
 import PortfolioDrawdownChart from "@/graphs/PortfolioDrawdownChart";
 import PortfolioCumulativeReturns from "@/graphs/PortfolioCumulativeReturns";
+import PortfolioReturnVolatilityScatterPlot from "@/graphs/PortfolioReturnVolatilityScatter";
 
 type Bar = {
   c: number;
@@ -389,6 +390,16 @@ export default function Portfolio() {
               sharesArr={sharesArr}
               SPYbars={SPYbars}
               totalPrice={totalPrice}
+            />
+          )}
+        </div>
+
+        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
+          {bars && sharesArr && bars.length === sharesArr.length && (
+            <PortfolioReturnVolatilityScatterPlot
+              bars={bars}
+              sharesArr={sharesArr}
+              SPYbars={SPYbars}
             />
           )}
         </div>
