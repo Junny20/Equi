@@ -7,11 +7,12 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
 import Heatmap from "@/graphs/HeatmapChart";
-import PortfolioValueChart from "@/graphs/PortfolioValueChart";
-import PortfolioDailyReturns from "@/graphs/PortfolioDailyReturns";
-import PortfolioDrawdownChart from "@/graphs/PortfolioDrawdownChart";
-import PortfolioCumulativeReturns from "@/graphs/PortfolioCumulativeReturns";
-import PortfolioReturnVolatilityScatterPlot from "@/graphs/PortfolioReturnVolatilityScatter";
+import PortfolioValueChart from "@/graphs/portfolio/PortfolioValueChart";
+import PortfolioDailyReturns from "@/graphs/portfolio/PortfolioDailyReturns";
+import PortfolioDrawdownChart from "@/graphs/portfolio/PortfolioDrawdownChart";
+import PortfolioCumulativeReturns from "@/graphs/portfolio/PortfolioCumulativeReturns";
+import PortfolioReturnVolatilityScatterPlot from "@/graphs/portfolio/PortfolioReturnVolatilityScatter";
+import PortfolioSharpeRatio from "@/graphs/portfolio/PortfolioSharpeRatio";
 
 type Bar = {
   c: number;
@@ -94,6 +95,15 @@ export default function Portfolio() {
     }
   };
 
+  const handleError = (msg: string) => {
+    console.error(msg);
+    setErrMessage(msg);
+    if (show) setShow((prev) => !prev);
+    if (showReset) setShowReset((prev) => !prev);
+    setStock("");
+    setShares("");
+  };
+
   const handleSubmit = async (
     e: FormEvent<HTMLFormElement>,
     stock: string,
@@ -102,6 +112,13 @@ export default function Portfolio() {
   ) => {
     e.preventDefault();
     console.log(stock, shares, position);
+
+    if (/[^0-9.,\s]/g.test(shares)) {
+      handleError(
+        "Invalid format in shares input. One number or a list of comma separated numbers must be entered."
+      );
+      return;
+    }
 
     const formattedStocks = stock.replace(/\s/g, "").toUpperCase();
     const formattedShares = shares.replace(/\s/g, "");
@@ -125,52 +142,22 @@ export default function Portfolio() {
         );
 
         if (Object.keys(data.trades).length === 0) {
-          console.error(
+          handleError(
             "No trade data available for selected stock/s. Check if symbols are indeed spelled correctly."
           );
-          setErrMessage(
-            "No trade data available for selected stock/s. Check if symbols are indeed spelled correctly."
-          );
-          if (show) {
-            setShow((prevValue) => !prevValue);
-          }
-          setStock("");
-          setShares("");
-          if (showReset) {
-            setShowReset((prevValue) => !prevValue);
-          }
           return;
         } else if (Object.keys(data.trades).length !== stocksArray.length) {
-          console.error(
+          handleError(
             "Mismatch between trading data length and selected stocks length. Check if all symbols are indeed spelled correctly."
           );
-          setErrMessage(
-            "Mismatch between trading data length and selected stocks length. Check if all symbols are indeed spelled correctly."
-          );
-          if (show) {
-            setShow((prevValue) => !prevValue);
-          }
-          setStock("");
-          setShares("");
-          if (showReset) {
-            setShowReset((prevValue) => !prevValue);
-          }
           return;
         } else if (
           sharesArr.length !== 1 &&
           sharesArr.length !== stocksArray.length
         ) {
-          console.error(
-            "Invalid format in shares input. One number or a list of comma separated numbers must be entered."
+          handleError(
+            "Mismatch between selected stocks length and shares length. Check if all values are comma-separated."
           );
-          setErrMessage(
-            "Invalid format in shares input. One number or a list of comma separated numbers must be entered."
-          );
-          if (show) {
-            setShow((prevValue) => !prevValue);
-          }
-          setStock("");
-          setShares("");
           return;
         }
 
@@ -349,65 +336,69 @@ export default function Portfolio() {
       </main>
 
       <section>
-        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
-          {bars &&
-            stocksArr &&
-            sharesArr &&
-            bars.length === stocksArr.length &&
-            sharesArr &&
-            SPYbars &&
-            totalPrice && (
-              <PortfolioValueChart
-                bars={bars}
-                sharesArr={sharesArr}
-                SPYbars={SPYbars}
-                totalPrice={totalPrice}
-              />
-            )}
-        </div>
-
-        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
-          {bars && sharesArr && bars.length === sharesArr.length && (
-            <PortfolioDailyReturns bars={bars} sharesArr={sharesArr} />
-          )}
-        </div>
-
-        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
-          {bars && sharesArr && bars.length === sharesArr.length && (
-            <PortfolioCumulativeReturns
-              bars={bars}
-              sharesArr={sharesArr}
-              SPYbars={SPYbars}
-              totalPrice={totalPrice}
-            />
-          )}
-        </div>
-
-        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
-          {bars && sharesArr && bars.length === sharesArr.length && (
-            <PortfolioDrawdownChart
-              bars={bars}
-              sharesArr={sharesArr}
-              SPYbars={SPYbars}
-              totalPrice={totalPrice}
-            />
-          )}
-        </div>
-
-        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
-          {bars && sharesArr && bars.length === sharesArr.length && (
-            <PortfolioReturnVolatilityScatterPlot
-              bars={bars}
-              sharesArr={sharesArr}
-              SPYbars={SPYbars}
-            />
-          )}
-        </div>
-
-        <div className="h-[60vh] w-[70vw] mx-auto my-[2vw]">
-          {bars && stocksArr && bars.length === stocksArr.length && (
-            <Heatmap bars={bars} stocksArr={stocksArr} />
-          )}
+        <div className="md:px-4 lg:px-10 md:py-4 py-10">
+          <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:justify-items-center">
+            <div className="lg:w-full">
+              {bars &&
+                stocksArr &&
+                sharesArr &&
+                bars.length === stocksArr.length &&
+                sharesArr &&
+                SPYbars &&
+                totalPrice && (
+                  <PortfolioValueChart
+                    bars={bars}
+                    sharesArr={sharesArr}
+                    SPYbars={SPYbars}
+                    totalPrice={totalPrice}
+                  />
+                )}
+            </div>
+            <div className="lg:w-full">
+              {bars && sharesArr && bars.length === sharesArr.length && (
+                <PortfolioDailyReturns bars={bars} sharesArr={sharesArr} />
+              )}
+            </div>
+            <div className="lg:w-full">
+              {bars && sharesArr && bars.length === sharesArr.length && (
+                <PortfolioCumulativeReturns
+                  bars={bars}
+                  sharesArr={sharesArr}
+                  SPYbars={SPYbars}
+                  totalPrice={totalPrice}
+                />
+              )}
+            </div>
+            <div className="lg:w-full">
+              {bars && sharesArr && bars.length === sharesArr.length && (
+                <PortfolioDrawdownChart
+                  bars={bars}
+                  sharesArr={sharesArr}
+                  SPYbars={SPYbars}
+                  totalPrice={totalPrice}
+                />
+              )}
+            </div>
+            <div className="lg:w-full">
+              {bars && stocksArr && bars.length === stocksArr.length && (
+                <PortfolioSharpeRatio bars={bars} sharesArr={sharesArr} />
+              )}
+            </div>
+            <div className="lg:w-full">
+              {bars && sharesArr && bars.length === sharesArr.length && (
+                <PortfolioReturnVolatilityScatterPlot
+                  bars={bars}
+                  sharesArr={sharesArr}
+                  SPYbars={SPYbars}
+                />
+              )}
+            </div>
+            <div className="lg:w-full">
+              {bars && stocksArr && bars.length === stocksArr.length && (
+                <Heatmap bars={bars} stocksArr={stocksArr} />
+              )}
+            </div>
+          </div>
         </div>
       </section>
     </>

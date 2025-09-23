@@ -11,7 +11,7 @@ import type { ChartData, ChartOptions } from "chart.js";
 
 import mean from "@/functions/mean";
 import dailyReturns from "@/functions/dailyReturns";
-import rollingReturns from "@/functions/rollingReturns";
+import rollingReturns from "@/functions/rollingCumulativeReturns";
 import rollingVol from "@/functions/rollingVolatility";
 import portfolioClosingPrices from "@/functions/portfolioClosingPrices";
 
@@ -110,12 +110,6 @@ export default function PortfolioReturnVolatilityScatterPlot({
         backgroundColor: "rgba(0,0,255,0.5)",
         pointRadius: 3,
       },
-      {
-        label: "Portfolio returns/volatility",
-        data: data,
-        backgroundColor: "rgba(139, 19, 169, 0.5)",
-        pointRadius: 3,
-      },
       ...(SPYbars
         ? [
             {
@@ -126,6 +120,12 @@ export default function PortfolioReturnVolatilityScatterPlot({
             },
           ]
         : []),
+      {
+        label: "Portfolio returns/volatility",
+        data: data,
+        backgroundColor: "rgba(139, 19, 169, 0.5)",
+        pointRadius: 3,
+      },
       ...(SPYbars
         ? [
             {

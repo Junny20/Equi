@@ -11,6 +11,7 @@ import {
   Legend,
   Title,
 } from "chart.js";
+import annotationPlugin from "chartjs-plugin-annotation";
 
 import type { ChartData, ChartOptions } from "chart.js";
 import { Line } from "react-chartjs-2";
@@ -21,7 +22,8 @@ ChartJS.register(
   BarElement,
   Tooltip,
   Legend,
-  Title
+  Title,
+  annotationPlugin
 );
 
 type Bar = {
@@ -111,6 +113,17 @@ export default function PortfolioCumulativeReturns({
       datalabels: {
         display: false,
       },
+      annotation: {
+        annotations: {
+          zeroLine: {
+            type: "line",
+            yMin: 0,
+            yMax: 0,
+            borderColor: "red",
+            borderWidth: 0.6,
+          },
+        },
+      },
       title: { display: true, text: "Cumulative returns of portfolio" },
       tooltip: {
         callbacks: {
@@ -120,7 +133,7 @@ export default function PortfolioCumulativeReturns({
     },
     elements: {
       point: {
-        radius: 2,
+        radius: 1,
       },
     },
     scales: {

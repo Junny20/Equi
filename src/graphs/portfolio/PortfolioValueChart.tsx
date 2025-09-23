@@ -8,9 +8,11 @@ import {
   Title,
   Legend,
 } from "chart.js";
+import annotationPlugin from "chartjs-plugin-annotation";
 
 import { Line } from "react-chartjs-2";
 import type { ChartOptions } from "chart.js";
+
 import portfolioClosingPrices from "@/functions/portfolioClosingPrices";
 
 ChartJS.register(
@@ -20,7 +22,8 @@ ChartJS.register(
   PointElement,
   Tooltip,
   Title,
-  Legend
+  Legend,
+  annotationPlugin
 );
 
 type Bar = {
@@ -49,7 +52,6 @@ export default function PortfolioValueChart({
 }: Props) {
   const minLength = Math.min(...bars.map((e: Bar[]) => e.length));
   let minIndex = 0;
-
   for (let i = 0; i < bars.length; i++) {
     if (bars[i].length === minLength) {
       minIndex = i;
@@ -99,6 +101,17 @@ export default function PortfolioValueChart({
       datalabels: {
         display: false,
       },
+      annotation: {
+        annotations: {
+          zeroLine: {
+            type: "line",
+            yMin: closingPricesArr[0],
+            yMax: closingPricesArr[0],
+            borderWidth: 1,
+            borderColor: "rgba(227, 29, 29, 0.5)",
+          },
+        },
+      },
       title: {
         display: true,
         text: "Portfolio value over a year",
@@ -119,7 +132,7 @@ export default function PortfolioValueChart({
     },
     elements: {
       point: {
-        radius: 2,
+        radius: 1,
       },
     },
   };
